@@ -140,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\ThicknessLeftConverter.cs" />
+    <Compile Include="Extensions\ConvenientBindableDataModelExtensions.cs" />
+    <Compile Include="Helpers\AutoBindHelper.cs" />
+    <Compile Include="Interfaces\IAutoBindableModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -155,7 +158,6 @@
     <AppDesigner Include="Properties\" />
     <None Include="NuGet\WPFMultiSelectTreeView.nuspec" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="MultiSelectTreeView.ico" />
   </ItemGroup>

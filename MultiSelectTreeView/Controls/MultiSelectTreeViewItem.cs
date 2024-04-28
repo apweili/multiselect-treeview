@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Automation.Peers;
+using System.Windows.Data;
+using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -328,8 +330,8 @@ namespace System.Windows.Controls
             get
             {
                 for (ItemsControl itemsControl = ParentItemsControl;
-                    itemsControl != null;
-                    itemsControl = ItemsControlFromItemContainer(itemsControl))
+                     itemsControl != null;
+                     itemsControl = ItemsControlFromItemContainer(itemsControl))
                 {
                     MultiSelectTreeView treeView = itemsControl as MultiSelectTreeView;
                     if (treeView != null)
@@ -337,48 +339,34 @@ namespace System.Windows.Controls
                         return lastParentTreeView = treeView;
                     }
                 }
+
                 return null;
             }
         }
 
         private static bool IsControlKeyDown
         {
-            get
-            {
-                return (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
-            }
+            get { return (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control; }
         }
 
         private static bool IsShiftKeyDown
         {
-            get
-            {
-                return (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
-            }
+            get { return (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift; }
         }
 
         private bool CanExpand
         {
-            get
-            {
-                return HasItems;
-            }
+            get { return HasItems; }
         }
 
         private bool CanExpandOnInput
         {
-            get
-            {
-                return CanExpand && IsEnabled;
-            }
+            get { return CanExpand && IsEnabled; }
         }
 
         private ItemsControl ParentItemsControl
         {
-            get
-            {
-                return ItemsControlFromItemContainer(this);
-            }
+            get { return ItemsControlFromItemContainer(this); }
         }
 
         #endregion Non-public properties
@@ -413,6 +401,7 @@ namespace System.Windows.Controls
                     {
                         item.ParentTreeView.SelectedItems.Add(item.DataContext);
                     }
+
                     item.BringIntoView();
                     item.Focus();
                 }
@@ -446,6 +435,7 @@ namespace System.Windows.Controls
                         ((FrameworkElement)GetVisualChild(VisualChildrenCount - 1)).BringIntoView();
                     }
                 }
+
                 // Deselect children of collapsed item
                 // (If one resists, don't collapse)
                 if ((bool)e.NewValue == false)
@@ -475,7 +465,6 @@ namespace System.Windows.Controls
 
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
         {
-
             // Remove all items from the SelectedItems list that are no longer in the Items
             if (oldValue != null)
             {
@@ -499,6 +488,13 @@ namespace System.Windows.Controls
         protected override DependencyObject GetContainerForItemOverride()
         {
             return new MultiSelectTreeViewItem();
+        }
+
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
+            base.PrepareContainerForItemOverride(element, item);
+            ((ItemsControl)element).DisplayMemberPath = DisplayMemberPath;
+            AutoBindHelper.TryToAutoBindObject(element, item);
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item)
@@ -551,6 +547,7 @@ namespace System.Windows.Controls
                         {
                             ParentTreeView.Selection.SelectParentFromKey();
                         }
+
                         e.Handled = true;
                         break;
                     case Key.Right:
@@ -565,6 +562,7 @@ namespace System.Windows.Controls
                                 ParentTreeView.Selection.SelectNextFromKey();
                             }
                         }
+
                         e.Handled = true;
                         break;
                     case Key.Up:
@@ -597,12 +595,14 @@ namespace System.Windows.Controls
                             ParentTreeView.Selection.SelectAllFromKey();
                             e.Handled = true;
                         }
+
                         break;
                     case Key.Add:
                         if (CanExpandOnInput && !IsExpanded)
                         {
                             IsExpanded = true;
                         }
+
                         e.Handled = true;
                         break;
                     case Key.Multiply:
@@ -611,6 +611,7 @@ namespace System.Windows.Controls
                             IsExpanded = true;
                             ParentTreeView.RecursiveExpand(this);
                         }
+
                         e.Handled = true;
                         break;
                     case Key.Subtract:
@@ -618,6 +619,7 @@ namespace System.Windows.Controls
                         {
                             IsExpanded = false;
                         }
+
                         e.Handled = true;
                         break;
                     case Key.F2:
@@ -626,6 +628,7 @@ namespace System.Windows.Controls
                             IsEditing = true;
                             e.Handled = true;
                         }
+
                         break;
                     case Key.Escape:
                         StopEditing();
@@ -685,12 +688,14 @@ namespace System.Windows.Controls
                 ParentTreeView.Selection.Select(this);
                 e.Handled = true;
             }
+
             if (e.ChangedButton == MouseButton.Right)
             {
                 if (!IsSelected)
                 {
                     ParentTreeView.Selection.Select(this);
                 }
+
                 e.Handled = true;
             }
         }
@@ -721,6 +726,7 @@ namespace System.Windows.Controls
                             // the SelectedItems list
                         }
                     }
+
                     break;
             }
 

@@ -242,6 +242,8 @@ namespace Demo.ViewModel
 			}
 		}
 
+		public string ConstantDisplay { get; } = "kankan wo";
+
 		#endregion INotifyPropertyChanged members
 	}
 }
