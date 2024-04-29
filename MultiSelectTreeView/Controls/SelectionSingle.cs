@@ -27,8 +27,8 @@ namespace System.Windows.Controls
 		
 		public bool Select(MultiSelectTreeViewItem item)
 		{
-			if (treeView.SelectedItems.Count == 1 &&
-			    treeView.SelectedItems[0] == item.DataContext)
+			if (treeView.InternalSelectedItems.Count == 1 &&
+			    treeView.InternalSelectedItems[0] == item.DataContext)
 			{
 				// Requested to select the single already-selected item. Don't change the selection.
 				FocusHelper.Focus(item, true);
@@ -42,9 +42,9 @@ namespace System.Windows.Controls
 
 		public bool SelectCore(MultiSelectTreeViewItem item)
 		{
-			if (treeView.SelectedItems.Count > 0)
+			if (treeView.InternalSelectedItems.Count > 0)
 			{
-				foreach (var selItem in new ArrayList(treeView.SelectedItems))
+				foreach (var selItem in new ArrayList(treeView.InternalSelectedItems))
 				{
 					var e2 = new PreviewSelectionChangedEventArgs(false, selItem);
 					OnPreviewSelectionChanged(e2);
@@ -55,7 +55,7 @@ namespace System.Windows.Controls
 					}
 					if (!e2.CancelThis)
 					{
-						treeView.SelectedItems.Remove(selItem);
+						treeView.InternalSelectedItems.Remove(selItem);
 					}
 				}
 			}
@@ -68,7 +68,7 @@ namespace System.Windows.Controls
 				return false;
 			}
 
-			treeView.SelectedItems.Add(item.DataContext);
+			treeView.InternalSelectedItems.Add(item.DataContext);
 			FocusHelper.Focus(item, true);
 			return true;
 		}
@@ -79,7 +79,7 @@ namespace System.Windows.Controls
 			OnPreviewSelectionChanged(e);
 			if (e.CancelAny) return false;
 
-			treeView.SelectedItems.Remove(item.DataContext);
+			treeView.InternalSelectedItems.Remove(item.DataContext);
 			FocusHelper.Focus(item, bringIntoView);
 			return true;
 		}
@@ -150,9 +150,9 @@ namespace System.Windows.Controls
 			}
 
 			item.IsSelected = true;
-			if (!treeView.SelectedItems.Contains(item.DataContext))
+			if (!treeView.InternalSelectedItems.Contains(item.DataContext))
 			{
-				treeView.SelectedItems.Add(item.DataContext);
+				treeView.InternalSelectedItems.Add(item.DataContext);
 			}
 			
 			FocusHelper.Focus(item, true);

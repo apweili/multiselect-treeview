@@ -142,6 +142,7 @@
     <Compile Include="Controls\ThicknessLeftConverter.cs" />
     <Compile Include="Extensions\ConvenientBindableDataModelExtensions.cs" />
     <Compile Include="Helpers\AutoBindHelper.cs" />
+    <Compile Include="Helpers\PropertyPathHelper.cs" />
     <Compile Include="Interfaces\IAutoBindableModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

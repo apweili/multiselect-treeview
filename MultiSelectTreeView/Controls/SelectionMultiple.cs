@@ -66,7 +66,7 @@ namespace System.Windows.Controls
 		{
 			if (IsControlKeyDown)
 			{
-				if (treeView.SelectedItems.Contains(item.DataContext))
+				if (treeView.InternalSelectedItems.Contains(item.DataContext))
 				{
 					return Deselect(item, true);
 				}
@@ -85,8 +85,8 @@ namespace System.Windows.Controls
 			}
 			else
 			{
-				if (treeView.SelectedItems.Count == 1 &&
-					treeView.SelectedItems[0] == item.DataContext)
+				if (treeView.InternalSelectedItems.Count == 1 &&
+					treeView.InternalSelectedItems[0] == item.DataContext)
 				{
 					// Requested to select the single already-selected item. Don't change the selection.
 					FocusHelper.Focus(item, true);
@@ -110,9 +110,9 @@ namespace System.Windows.Controls
 				return false;
 			}
 
-			if (!treeView.SelectedItems.Contains(item.DataContext))
+			if (!treeView.InternalSelectedItems.Contains(item.DataContext))
 			{
-				treeView.SelectedItems.Add(item.DataContext);
+				treeView.InternalSelectedItems.Add(item.DataContext);
 			}
 			lastShiftRoot = item.DataContext;
 			return true;
@@ -128,7 +128,7 @@ namespace System.Windows.Controls
 				return false;
 			}
 
-			treeView.SelectedItems.Remove(item.DataContext);
+			treeView.InternalSelectedItems.Remove(item.DataContext);
 			if (item.DataContext == lastShiftRoot)
 			{
 				lastShiftRoot = null;
@@ -140,21 +140,21 @@ namespace System.Windows.Controls
 		{
 			if (IsControlKeyDown)
 			{
-				if (!treeView.SelectedItems.Contains(item.DataContext))
+				if (!treeView.InternalSelectedItems.Contains(item.DataContext))
 				{
-					treeView.SelectedItems.Add(item.DataContext);
+					treeView.InternalSelectedItems.Add(item.DataContext);
 				}
 				lastShiftRoot = item.DataContext;
 			}
-			else if (IsShiftKeyDown && treeView.SelectedItems.Count > 0)
+			else if (IsShiftKeyDown && treeView.InternalSelectedItems.Count > 0)
 			{
-				object firstSelectedItem = lastShiftRoot ?? treeView.SelectedItems.First();
+				object firstSelectedItem = lastShiftRoot ?? treeView.InternalSelectedItems.First();
 				MultiSelectTreeViewItem shiftRootItem = treeView.GetTreeViewItemsFor(new List<object> { firstSelectedItem }).First();
 
 				var newSelection = treeView.GetNodesToSelectBetween(shiftRootItem, item).Select(n => n.DataContext).ToList();
 				// Make a copy of the list because we're modifying it while enumerating it
-				var selectedItems = new object[treeView.SelectedItems.Count];
-				treeView.SelectedItems.CopyTo(selectedItems, 0);
+				var selectedItems = new object[treeView.InternalSelectedItems.Count];
+				treeView.InternalSelectedItems.CopyTo(selectedItems, 0);
 				// Remove all items no longer selected
 				foreach (var selItem in selectedItems.Where(i => !newSelection.Contains(i)))
 				{
@@ -167,7 +167,7 @@ namespace System.Windows.Controls
 					}
 					if (!e.CancelThis)
 					{
-						treeView.SelectedItems.Remove(selItem);
+						treeView.InternalSelectedItems.Remove(selItem);
 					}
 				}
 				// Add new selected items
@@ -182,15 +182,15 @@ namespace System.Windows.Controls
 					}
 					if (!e.CancelThis)
 					{
-						treeView.SelectedItems.Add(newItem);
+						treeView.InternalSelectedItems.Add(newItem);
 					}
 				}
 			}
 			else
 			{
-				if (treeView.SelectedItems.Count > 0)
+				if (treeView.InternalSelectedItems.Count > 0)
 				{
-					foreach (var selItem in new ArrayList(treeView.SelectedItems))
+					foreach (var selItem in new ArrayList(treeView.InternalSelectedItems))
 					{
 						var e2 = new PreviewSelectionChangedEventArgs(false, selItem);
 						OnPreviewSelectionChanged(e2);
@@ -202,7 +202,7 @@ namespace System.Windows.Controls
 						}
 						if (!e2.CancelThis)
 						{
-							treeView.SelectedItems.Remove(selItem);
+							treeView.InternalSelectedItems.Remove(selItem);
 						}
 					}
 				}
@@ -216,7 +216,7 @@ namespace System.Windows.Controls
 					return false;
 				}
 
-				treeView.SelectedItems.Add(item.DataContext);
+				treeView.InternalSelectedItems.Add(item.DataContext);
 				lastShiftRoot = item.DataContext;
 			}
 
@@ -228,7 +228,7 @@ namespace System.Windows.Controls
 		{
 			// Another item was focused by Ctrl+Arrow key
 			var item = GetFocusedItem();
-			if (treeView.SelectedItems.Contains(item.DataContext))
+			if (treeView.InternalSelectedItems.Contains(item.DataContext))
 			{
 				// With Ctrl key, toggle this item selection (deselect now).
 				// Without Ctrl key, always select it (is already selected).
@@ -249,9 +249,9 @@ namespace System.Windows.Controls
 				}
 
 				item.IsSelected = true;
-				if (!treeView.SelectedItems.Contains(item.DataContext))
+				if (!treeView.InternalSelectedItems.Contains(item.DataContext))
 				{
-					treeView.SelectedItems.Add(item.DataContext);
+					treeView.InternalSelectedItems.Add(item.DataContext);
 				}
 			}
 			FocusHelper.Focus(item, true);
@@ -361,7 +361,7 @@ namespace System.Windows.Controls
 		{
 			var items = MultiSelectTreeView.RecursiveTreeViewItemEnumerable(treeView, false, false).ToList();
 			// Add new selected items
-			foreach (var item in items.Where(i => !treeView.SelectedItems.Contains(i.DataContext)))
+			foreach (var item in items.Where(i => !treeView.InternalSelectedItems.Contains(i.DataContext)))
 			{
 				var e = new PreviewSelectionChangedEventArgs(true, item.DataContext);
 				OnPreviewSelectionChanged(e);
@@ -371,7 +371,7 @@ namespace System.Windows.Controls
 				}
 				if (!e.CancelThis)
 				{
-					treeView.SelectedItems.Add(item.DataContext);
+					treeView.InternalSelectedItems.Add(item.DataContext);
 				}
 			}
 			return true;
@@ -394,7 +394,7 @@ namespace System.Windows.Controls
 			OnPreviewSelectionChanged(e);
 			if (e.CancelAny) return false;
 
-			treeView.SelectedItems.Remove(item.DataContext);
+			treeView.InternalSelectedItems.Remove(item.DataContext);
 			if (item.DataContext == lastShiftRoot)
 			{
 				lastShiftRoot = null;

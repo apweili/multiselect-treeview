@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 
@@ -16,6 +18,7 @@ namespace Demo.ViewModel
 		private static readonly TreeItemViewModel DummyChild = new TreeItemViewModel();
 
 		private readonly ObservableCollection<TreeItemViewModel> children;
+		public IList SelectedItems { get; set; } 
 		private readonly TreeItemViewModel parent;
 
 		private bool isExpanded;
@@ -35,7 +38,6 @@ namespace Demo.ViewModel
 			this.parent = parent;
 
 			children = new ObservableCollection<TreeItemViewModel>();
-
 			if (lazyLoadChildren)
 				children.Add(DummyChild);
 		}

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -30,14 +31,14 @@ namespace System.Windows.Controls
 
         public event SelectionChangedEventHandler SelectionChanged
         {
-            add { AddHandler(SelectionChangedEvent, value); }
-            remove { RemoveHandler(SelectionChangedEvent, value); }
+            add => AddHandler(SelectionChangedEvent, value);
+            remove => RemoveHandler(SelectionChangedEvent, value);
         }
 
         public event PreviewSelectionChangedEventHandler PreviewSelectionChanged
         {
-            add { AddHandler(PreviewSelectionChangedEvent, value); }
-            remove { RemoveHandler(PreviewSelectionChangedEvent, value); }
+            add => AddHandler(PreviewSelectionChangedEvent, value);
+            remove => RemoveHandler(PreviewSelectionChangedEvent, value);
         }
 
         public static readonly DependencyProperty LastSelectedItemProperty;
@@ -84,12 +85,64 @@ namespace System.Windows.Controls
             typeof(MultiSelectTreeView),
             new FrameworkPropertyMetadata(null));
 
+        /// <summary>
+        ///     The key needed set a read-only property.
+        /// </summary>
+        private static readonly DependencyPropertyKey InternalSelectedItemsPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                "InternalSelectedItems",
+                typeof(IList),
+                typeof(MultiSelectTreeView),
+                new FrameworkPropertyMetadata(
+                    (IList)null));
+
+
+        /// <summary>
+        /// A read-only IList containing the currently selected items
+        /// </summary>
+        internal static readonly DependencyProperty InternalSelectedItemsImplProperty =
+            InternalSelectedItemsPropertyKey.DependencyProperty;
+
         public static DependencyProperty SelectedItemsProperty = DependencyProperty.Register(
             "SelectedItems",
             typeof(IList),
             typeof(MultiSelectTreeView),
             new FrameworkPropertyMetadata(
-                null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemsPropertyChanged));
+                null, OnSelectedItemsPropertyChanged));
+
+        /// <summary>
+        /// Gets or sets a list of selected items and can be bound to another list. If the source list
+        /// implements <see cref="INotifyPropertyChanged"/> the changes are automatically taken over.
+        /// </summary>
+        public IList SelectedItems
+        {
+            get { return (IList)GetValue(SelectedItemsProperty); }
+            set { SetValue(SelectedItemsProperty, value); }
+        }
+
+        public IList InternalSelectedItems
+        {
+            get { return (IList)GetValue(InternalSelectedItemsImplProperty); }
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            var treeViewItems = RecursiveTreeViewItemEnumerable(this, true);
+            foreach (var treeViewItem in treeViewItems)
+            {
+                var item = treeViewItem.DataContext;
+                if (item == null)
+                {
+                    continue;
+                }
+
+                if (InternalSelectedItems.Contains(item))
+                {
+                    treeViewItem.IsSelected = true;
+                }
+            }
+        }
 
         public static DependencyProperty AllowEditItemsProperty = DependencyProperty.Register(
             "AllowEditItems",
@@ -122,12 +175,30 @@ namespace System.Windows.Controls
         [Localizability(LocalizationCategory.NeverLocalize)] // not localizable
         public string SelectedValuePath
         {
-            get { return (string)GetValue(SelectedValuePathProperty); }
-            set { SetValue(SelectedValuePathProperty, value); }
+            get => (string)GetValue(SelectedValuePathProperty);
+            set => SetValue(SelectedValuePathProperty, value);
+        }
+
+        private void UpdateSelectedValueByPath(string newValuePath)
+        {
+            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled || InternalSelectedItems.Count != 1)
+            {
+                return;
+            }
+
+            var selectedItem = InternalSelectedItems.First();
+            SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem, newValuePath);
         }
 
         private static void OnSelectedValuePathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            var treeView = d as MultiSelectTreeView;
+            if (treeView == null)
+            {
+                return;
+            }
+
+            treeView.UpdateSelectedValueByPath(e.NewValue as string);
         }
 
         /// <summary>
@@ -161,8 +232,8 @@ namespace System.Windows.Controls
          DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object SelectedValue
         {
-            get { return GetValue(SelectedValueProperty); }
-            set { SetValue(SelectedValueProperty, value); }
+            get => GetValue(SelectedValueProperty);
+            set => SetValue(SelectedValueProperty, value);
         }
 
         /// <summary>
@@ -175,7 +246,51 @@ namespace System.Windows.Controls
 
         private static object CoerceSelectedValue(DependencyObject d, object basevalue)
         {
-            return basevalue;
+            var treeView = d as MultiSelectTreeView;
+            if (treeView == null)
+            {
+                return null;
+            }
+
+            if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            {
+                return null;
+            }
+
+            if (treeView.TryToFindSelectedItem(basevalue))
+            {
+                return basevalue;
+            }
+
+            return null;
+        }
+
+        private bool TryToFindSelectedItem(object selectedValue)
+        {
+            if (selectedValue == null)
+            {
+                return false;
+            }
+
+            var valuePath = SelectedValuePath;
+            var items = GetAllItems();
+            if (string.IsNullOrEmpty(valuePath))
+            {
+                return items.FirstOrDefault(selectedValue.Equals) != null;
+            }
+
+            var selectedItem = items.FirstOrDefault(item => item != null &&
+                                                            selectedValue.Equals(
+                                                                PropertyPathHelper.GetObjectByPropertyPath(item,
+                                                                    valuePath)));
+            if (selectedItem == null)
+            {
+                return false;
+            }
+
+            InternalSelectedItems.Clear();
+            InternalSelectedItems.Add(selectedItem);
+            return true;
         }
 
         #endregion
@@ -193,7 +308,9 @@ namespace System.Windows.Controls
 
         public MultiSelectTreeView()
         {
-            SelectedItems = new ObservableCollection<object>();
+            var selectedItems = new ObservableCollection<object>();
+            selectedItems.CollectionChanged += OnSelectedItemsChanged;
+            SetValue(InternalSelectedItemsPropertyKey, selectedItems);
             Selection = new SelectionMultiple(this);
             Selection.PreviewSelectionChanged += PreviewSelectionChangedHandler;
         }
@@ -204,45 +321,45 @@ namespace System.Windows.Controls
 
         public Brush BackgroundSelectionRectangle
         {
-            get { return (Brush)GetValue(BackgroundSelectionRectangleProperty); }
-            set { SetValue(BackgroundSelectionRectangleProperty, value); }
+            get => (Brush)GetValue(BackgroundSelectionRectangleProperty);
+            set => SetValue(BackgroundSelectionRectangleProperty, value);
         }
 
         public Brush BorderBrushSelectionRectangle
         {
-            get { return (Brush)GetValue(BorderBrushSelectionRectangleProperty); }
-            set { SetValue(BorderBrushSelectionRectangleProperty, value); }
+            get => (Brush)GetValue(BorderBrushSelectionRectangleProperty);
+            set => SetValue(BorderBrushSelectionRectangleProperty, value);
         }
 
         public bool HoverHighlighting
         {
-            get { return (bool)GetValue(HoverHighlightingProperty); }
-            set { SetValue(HoverHighlightingProperty, value); }
+            get => (bool)GetValue(HoverHighlightingProperty);
+            set => SetValue(HoverHighlightingProperty, value);
         }
 
         public bool VerticalRulers
         {
-            get { return (bool)GetValue(VerticalRulersProperty); }
-            set { SetValue(VerticalRulersProperty, value); }
+            get => (bool)GetValue(VerticalRulersProperty);
+            set => SetValue(VerticalRulersProperty, value);
         }
 
         public int ItemIndent
         {
-            get { return (int)GetValue(ItemIndentProperty); }
-            set { SetValue(ItemIndentProperty, value); }
+            get => (int)GetValue(ItemIndentProperty);
+            set => SetValue(ItemIndentProperty, value);
         }
 
         [Browsable(false)]
         public bool IsKeyboardMode
         {
-            get { return (bool)GetValue(IsKeyboardModeProperty); }
-            set { SetValue(IsKeyboardModeProperty, value); }
+            get => (bool)GetValue(IsKeyboardModeProperty);
+            set => SetValue(IsKeyboardModeProperty, value);
         }
 
         public bool AllowEditItems
         {
-            get { return (bool)GetValue(AllowEditItemsProperty); }
-            set { SetValue(AllowEditItemsProperty, value); }
+            get => (bool)GetValue(AllowEditItemsProperty);
+            set => SetValue(AllowEditItemsProperty, value);
         }
 
         /// <summary>
@@ -250,8 +367,8 @@ namespace System.Windows.Controls
         /// </summary>
         public object LastSelectedItem
         {
-            get { return GetValue(LastSelectedItemProperty); }
-            private set { SetValue(LastSelectedItemPropertyKey, value); }
+            get => GetValue(LastSelectedItemProperty);
+            private set => SetValue(LastSelectedItemPropertyKey, value);
         }
 
         /// <summary>
@@ -259,8 +376,8 @@ namespace System.Windows.Controls
         /// </summary>
         public TreeViewSelectionMode SelectionMode
         {
-            get { return (TreeViewSelectionMode)GetValue(SelectionModeProperty); }
-            set { SetValue(SelectionModeProperty, value); }
+            get => (TreeViewSelectionMode)GetValue(SelectionModeProperty);
+            set => SetValue(SelectionModeProperty, value);
         }
 
         private MultiSelectTreeViewItem lastFocusedItem;
@@ -270,7 +387,7 @@ namespace System.Windows.Controls
         /// </summary>
         internal MultiSelectTreeViewItem LastFocusedItem
         {
-            get { return lastFocusedItem; }
+            get => lastFocusedItem;
             set
             {
                 // Only the last focused MultiSelectTreeViewItem may have IsTabStop = true
@@ -291,16 +408,6 @@ namespace System.Windows.Controls
             }
         }
 
-        /// <summary>
-        /// Gets or sets a list of selected items and can be bound to another list. If the source list
-        /// implements <see cref="INotifyPropertyChanged"/> the changes are automatically taken over.
-        /// </summary>
-        public IList SelectedItems
-        {
-            get { return (IList)GetValue(SelectedItemsProperty); }
-            set { SetValue(SelectedItemsProperty, value); }
-        }
-
         internal ISelectionStrategy Selection { get; private set; }
 
         #endregion
@@ -316,10 +423,10 @@ namespace System.Windows.Controls
 
         public bool ClearSelection()
         {
-            if (SelectedItems.Count > 0)
+            if (InternalSelectedItems.Count > 0)
             {
                 // Make a copy of the list and ignore changes to the selection while raising events
-                foreach (var selItem in new ArrayList(SelectedItems))
+                foreach (var selItem in new ArrayList(InternalSelectedItems))
                 {
                     var e = new PreviewSelectionChangedEventArgs(false, selItem);
                     OnPreviewSelectionChanged(e);
@@ -329,7 +436,7 @@ namespace System.Windows.Controls
                     }
                 }
 
-                SelectedItems.Clear();
+                InternalSelectedItems.Clear();
             }
 
             return true;
@@ -468,14 +575,14 @@ namespace System.Windows.Controls
 
         internal bool ClearSelectionByRectangle()
         {
-            foreach (var item in new ArrayList(SelectedItems))
+            foreach (var item in new ArrayList(InternalSelectedItems))
             {
                 var e = new PreviewSelectionChangedEventArgs(false, item);
                 OnPreviewSelectionChanged(e);
                 if (e.CancelAny) return false;
             }
 
-            SelectedItems.Clear();
+            InternalSelectedItems.Clear();
             return true;
         }
 
@@ -618,7 +725,7 @@ namespace System.Windows.Controls
                     {
                         foreach (var item in e.OldItems)
                         {
-                            SelectedItems.Remove(item);
+                            InternalSelectedItems.Remove(item);
                             // Don't preview and ask, it is already gone so it must be removed from
                             // the SelectedItems list
                         }
@@ -628,7 +735,7 @@ namespace System.Windows.Controls
                 case NotifyCollectionChangedAction.Reset:
                     // If the items list has considerably changed, the selection is probably
                     // useless anyway, clear it entirely.
-                    SelectedItems.Clear();
+                    InternalSelectedItems.Clear();
                     break;
             }
 
@@ -762,6 +869,36 @@ namespace System.Windows.Controls
             }
         }
 
+        internal IEnumerable<object> GetAllItems()
+        {
+            return RecursiveTreeViewItemEnumerable(this, true).Select(x => x.DataContext);
+        }
+
+        private void OnExternalSelectedItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var internalSelectedItems = (ObservableCollection<object>)InternalSelectedItems;
+             switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (var item in e.NewItems)
+                    {
+                        internalSelectedItems.Add(item); 
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (var item in e.OldItems)
+                    {
+                        internalSelectedItems.Remove(item); 
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    internalSelectedItems.Clear();
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+        
         // this eventhandler reacts on the firing control to, in order to update the own status
         private void OnSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -797,9 +934,9 @@ namespace System.Windows.Controls
                         item.IsSelected = false;
                         if (item.DataContext == LastSelectedItem)
                         {
-                            if (SelectedItems.Count > 0)
+                            if (InternalSelectedItems.Count > 0)
                             {
-                                LastSelectedItem = SelectedItems[SelectedItems.Count - 1];
+                                LastSelectedItem = InternalSelectedItems[InternalSelectedItems.Count - 1];
                             }
                             else
                             {

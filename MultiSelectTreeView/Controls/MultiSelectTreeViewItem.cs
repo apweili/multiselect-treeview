@@ -397,9 +397,9 @@ namespace System.Windows.Controls
             {
                 if ((bool)e.NewValue)
                 {
-                    if (!item.ParentTreeView.SelectedItems.Contains(item.DataContext))
+                    if (!item.ParentTreeView.InternalSelectedItems.Contains(item.DataContext))
                     {
-                        item.ParentTreeView.SelectedItems.Add(item.DataContext);
+                        item.ParentTreeView.InternalSelectedItems.Add(item.DataContext);
                     }
 
                     item.BringIntoView();
@@ -407,7 +407,7 @@ namespace System.Windows.Controls
                 }
                 else
                 {
-                    item.ParentTreeView.SelectedItems.Remove(item.DataContext);
+                    item.ParentTreeView.InternalSelectedItems.Remove(item.DataContext);
                 }
             }
         }
@@ -475,7 +475,7 @@ namespace System.Windows.Controls
                 {
                     foreach (var item in oldValue)
                     {
-                        parentTV.SelectedItems.Remove(item);
+                        parentTV.InternalSelectedItems.Remove(item);
                         if (parentTV.Selection is SelectionMultiple multiselection)
                         {
                             multiselection.InvalidateLastShiftRoot(item);
@@ -505,15 +505,6 @@ namespace System.Windows.Controls
         protected override AutomationPeer OnCreateAutomationPeer()
         {
             return new MultiSelectTreeViewItemAutomationPeer(this);
-        }
-
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            if (ParentTreeView != null && ParentTreeView.SelectedItems.Contains(DataContext))
-            {
-                IsSelected = true;
-            }
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
@@ -717,7 +708,7 @@ namespace System.Windows.Controls
                     {
                         foreach (var item in e.OldItems)
                         {
-                            parentTV.SelectedItems.Remove(item);
+                            parentTV.InternalSelectedItems.Remove(item);
                             if (parentTV.Selection is SelectionMultiple multiselection)
                             {
                                 multiselection.InvalidateLastShiftRoot(item);

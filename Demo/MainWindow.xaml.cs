@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -18,13 +20,20 @@ namespace Demo
 {
 	public partial class MainWindow : Window
 	{
+		private TreeItemViewModel _nodeToAdd;
+		private TreeItemViewModel _rootNode;
 		public MainWindow()
 		{
 			InitializeComponent();
 			ShowSecondCheck_Checked(null, null);
-
+			//TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.SingleSelectOnly;
 			// Create some example nodes to play with
-			var rootNode = new TreeItemViewModel(null, false) { DisplayName = "rootNode" };
+			var rootNode = new TreeItemViewModel(null, false)
+			{
+				DisplayName = "rootNode",
+				SelectedItems = new List<TreeItemViewModel>() 
+			};
+			_rootNode = rootNode;
 			var node1 = new TreeItemViewModel(rootNode, false) { DisplayName = "element1 (editable)", IsEditable = true };
 			var node2 = new TreeItemViewModel(rootNode, false) { DisplayName = "element2" };
 			var node11 = new TreeItemViewModel(node1, false) { DisplayName = "element11", Remarks = "Look at me!" };
@@ -59,28 +68,29 @@ namespace Demo
 
 			// Preset some node states
 			node1.IsSelected = true;
-			node13.IsSelected = true;
+			// node13.IsSelected = true;
 			node14.IsExpanded = true;
+			_nodeToAdd = node132;
 		}
 
-		private void TheTreeView_PreviewSelectionChanged(object sender, PreviewSelectionChangedEventArgs e)
+		private void TheSpecialTreeView_PreviewSelectionChanged(object sender, PreviewSelectionChangedEventArgs e)
 		{
-			if (LockSelectionCheck.IsChecked == true)
-			{
-				// The current selection is locked by user request (Lock CheckBox is checked).
-				// Don't allow any changes to the selection at all.
-				e.CancelThis = true;
-			}
-			else
-			{
-				// Selection is not locked, apply other conditions.
-				// Require all selected items to be of the same type. If an item of another data
-				// type is already selected, don't include this new item in the selection.
-				if (e.Selecting && TheTreeView.SelectedItems.Count > 0)
-				{
-					e.CancelThis = e.Item.GetType() != TheTreeView.SelectedItems[0].GetType();
-				}
-			}
+			// if (LockSelectionCheck.IsChecked == true)
+			// {
+			// 	// The current selection is locked by user request (Lock CheckBox is checked).
+			// 	// Don't allow any changes to the selection at all.
+			// 	e.CancelThis = true;
+			// }
+			// else
+			// {
+			// 	// Selection is not locked, apply other conditions.
+			// 	// Require all selected items to be of the same type. If an item of another data
+			// 	// type is already selected, don't include this new item in the selection.
+			// 	if (e.Selecting && TheSpecialTreeView.SelectedItems.Count > 0)
+			// 	{
+			// 		e.CancelThis = e.Item.GetType() != TheSpecialTreeView.SelectedItems[0].GetType();
+			// 	}
+			// }
 
 			//if (e.Selecting)
 			//{
@@ -94,8 +104,8 @@ namespace Demo
 
 		private void ClearChildrenButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			var selection = new object[TheTreeView.SelectedItems.Count];
-			TheTreeView.SelectedItems.CopyTo(selection, 0);
+			var selection = new object[TheSpecialTreeView.InternalSelectedItems.Count];
+			TheSpecialTreeView.InternalSelectedItems.CopyTo(selection, 0);
 			foreach (TreeItemViewModel node in selection)
 			{
 				if (node.Children != null)
@@ -107,7 +117,7 @@ namespace Demo
 
 		private void AddChildButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.SelectedItems)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
 			{
 				if (!node.HasDummyChild)
 				{
@@ -115,11 +125,20 @@ namespace Demo
 					node.IsExpanded = true;
 				}
 			}
+
+			if (_rootNode.SelectedItems.Contains(_nodeToAdd))
+			{
+				_rootNode.SelectedItems.Remove(_rootNode);
+			}
+			else
+			{
+				_rootNode.SelectedItems.Add(_nodeToAdd);	
+			}
 		}
 
 		private void ExpandNodesButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.SelectedItems)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
 			{
 				node.IsExpanded = true;
 			}
@@ -127,7 +146,7 @@ namespace Demo
 
 		private void HideNodesButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.SelectedItems.OfType<TreeItemViewModel>().ToArray())
+			foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems.OfType<TreeItemViewModel>().ToArray())
 			{
 				node.IsVisible = false;
 			}
@@ -135,7 +154,7 @@ namespace Demo
 
 		private void ShowNodesButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.Items)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.Items)
 			{
 				DoShowAll(node, (n) => true);
 			}
@@ -155,7 +174,7 @@ namespace Demo
 
 		private void SelectNoneButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.Items)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.Items)
 			{
 				DoSelectAll(node, (n) => false);
 			}
@@ -164,7 +183,7 @@ namespace Demo
 		private void SelectSomeButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
 			Random rnd = new Random();
-			foreach (TreeItemViewModel node in TheTreeView.Items)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.Items)
 			{
 				DoSelectAll(node, (n) => rnd.Next(0, 2) > 0);
 			}
@@ -172,7 +191,7 @@ namespace Demo
 
 		private void SelectAllButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.Items)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.Items)
 			{
 				DoSelectAll(node, (n) => true);
 			}
@@ -180,7 +199,7 @@ namespace Demo
 
 		private void ToggleSelectButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.Items)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.Items)
 			{
 				DoSelectAll(node, (n) => !n.IsSelected);
 			}
@@ -200,7 +219,7 @@ namespace Demo
 
 		private void ExpandMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.SelectedItems)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
 			{
 				node.IsExpanded = true;
 			}
@@ -208,7 +227,7 @@ namespace Demo
 
 		private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.SelectedItems)
+			foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
 			{
 				node.IsEditing = true;
 				break;
@@ -217,7 +236,7 @@ namespace Demo
 
 		private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			foreach (TreeItemViewModel node in TheTreeView.SelectedItems.Cast<TreeItemViewModel>().ToArray())
+			foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems.Cast<TreeItemViewModel>().ToArray())
 			{
 				node.Parent.Children.Remove(node);
 			}
@@ -225,35 +244,35 @@ namespace Demo
 
 		private void ShowSecondCheck_Checked(object sender, RoutedEventArgs e)
 		{
-			if (ShowSecondCheck.IsChecked == true)
-			{
-				if (LastColumn.ActualWidth == 0)
-					Width += FirstColumn.ActualWidth;
-				LastColumn.Width = new GridLength(1, GridUnitType.Star);
-			}
-			else
-			{
-				if (LastColumn.ActualWidth > 0)
-					Width -= LastColumn.ActualWidth;
-				LastColumn.Width = new GridLength(0, GridUnitType.Pixel);
-			}
+			// if (ShowSecondCheck.IsChecked == true)
+			// {
+			// 	if (LastColumn.ActualWidth == 0)
+			// 		Width += FirstColumn.ActualWidth;
+			// 	LastColumn.Width = new GridLength(1, GridUnitType.Star);
+			// }
+			// else
+			// {
+			// 	if (LastColumn.ActualWidth > 0)
+			// 		Width -= LastColumn.ActualWidth;
+			// 	LastColumn.Width = new GridLength(0, GridUnitType.Pixel);
+			// }
 		}
 
 		private void AllowMultiSelection_Checked(object sender, RoutedEventArgs e)
 		{
-			if (AllowMultiSelect == null || TheTreeView == null)
-			{
-				return;
-			}
-			
-			if (e.RoutedEvent == ToggleButton.CheckedEvent)
-			{
-				TheTreeView.SelectionMode = TreeViewSelectionMode.MultiSelectEnabled;
-			}
-			else
-			{
-				TheTreeView.SelectionMode = TreeViewSelectionMode.SingleSelectOnly;
-			}
+			// if (AllowMultiSelect == null || TheSpecialTreeView == null)
+			// {
+			// 	return;
+			// }
+			//
+			// if (e.RoutedEvent == ToggleButton.CheckedEvent)
+			// {
+			// 	TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.MultiSelectEnabled;
+			// }
+			// else
+			// {
+			// 	TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.SingleSelectOnly;
+			// }
 		}
 	}
 }
