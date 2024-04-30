@@ -72,6 +72,7 @@ namespace Demo
 			node14.IsExpanded = true;
 			_nodeToAdd = node132;
 			rootNode.SelectedItems.Add(node1);
+			TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.SingleSelectOnly;
 		}
 
 		private void TheSpecialTreeView_PreviewSelectionChanged(object sender, PreviewSelectionChangedEventArgs e)

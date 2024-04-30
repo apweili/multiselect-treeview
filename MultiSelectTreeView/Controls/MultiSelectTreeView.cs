@@ -5,8 +5,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Automation.Peers;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -16,33 +14,6 @@ namespace System.Windows.Controls
     public partial class MultiSelectTreeView : ItemsControl
     {
         #region Constants and Fields
-
-        public static readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent(
-            "SelectionChanged",
-            RoutingStrategy.Bubble,
-            typeof(SelectionChangedEventHandler),
-            typeof(MultiSelectTreeView));
-
-        public static readonly RoutedEvent PreviewSelectionChangedEvent = EventManager.RegisterRoutedEvent(
-            "PreviewSelectionChanged",
-            RoutingStrategy.Bubble,
-            typeof(PreviewSelectionChangedEventHandler),
-            typeof(MultiSelectTreeView));
-
-        public event SelectionChangedEventHandler SelectionChanged
-        {
-            add => AddHandler(SelectionChangedEvent, value);
-            remove => RemoveHandler(SelectionChangedEvent, value);
-        }
-
-        public event PreviewSelectionChangedEventHandler PreviewSelectionChanged
-        {
-            add => AddHandler(PreviewSelectionChangedEvent, value);
-            remove => RemoveHandler(PreviewSelectionChangedEvent, value);
-        }
-
-        public static readonly DependencyProperty LastSelectedItemProperty;
-
         public static DependencyProperty BackgroundSelectionRectangleProperty = DependencyProperty.Register(
             "BackgroundSelectionRectangle",
             typeof(Brush),
@@ -78,12 +49,6 @@ namespace System.Windows.Controls
             typeof(bool),
             typeof(MultiSelectTreeView),
             new FrameworkPropertyMetadata(false, null));
-
-        public static DependencyPropertyKey LastSelectedItemPropertyKey = DependencyProperty.RegisterReadOnly(
-            "LastSelectedItem",
-            typeof(object),
-            typeof(MultiSelectTreeView),
-            new FrameworkPropertyMetadata(null));
 
         protected override void OnInitialized(EventArgs e)
         {
@@ -121,7 +86,6 @@ namespace System.Windows.Controls
 
         static MultiSelectTreeView()
         {
-            LastSelectedItemProperty = LastSelectedItemPropertyKey.DependencyProperty;
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MultiSelectTreeView),
                 new FrameworkPropertyMetadata(typeof(MultiSelectTreeView)));
         }
@@ -181,15 +145,6 @@ namespace System.Windows.Controls
         {
             get => (bool)GetValue(AllowEditItemsProperty);
             set => SetValue(AllowEditItemsProperty, value);
-        }
-
-        /// <summary>
-        ///    Gets the last selected item.
-        /// </summary>
-        public object LastSelectedItem
-        {
-            get => GetValue(LastSelectedItemProperty);
-            private set => SetValue(LastSelectedItemPropertyKey, value);
         }
 
         /// <summary>
@@ -506,6 +461,13 @@ namespace System.Windows.Controls
             if (treeView.Selection != null)
             {
                 treeView.Selection.PreviewSelectionChanged += treeView.PreviewSelectionChangedHandler;
+            }
+
+            var defaultSelectedItem = treeView.InternalSelectedItems.Cast<object>().LastOrDefault();
+            treeView.InternalSelectedItems.Clear();
+            if (defaultSelectedItem != null)
+            {
+                treeView.InternalSelectedItems.Add(defaultSelectedItem);
             }
         }
 

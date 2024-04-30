@@ -6,6 +6,11 @@ namespace System.Windows.Helpers
     {
         public static object GetObjectByPropertyPath(object target, string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                return target;
+            }
+            
             var p = target.GetType().GetProperty(path);
             if (p == null)
                 throw new ArgumentException($"The property {path} could not be found.");
