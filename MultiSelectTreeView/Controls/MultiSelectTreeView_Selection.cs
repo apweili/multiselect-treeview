@@ -204,6 +204,32 @@ namespace System.Windows.Controls
             return basevalue;
         }
 
+        /// <summary>
+        ///     SelectedIndex DependencyProperty
+        /// </summary>
+        public static readonly DependencyProperty SelectedIndexProperty = Selector.SelectedIndexProperty.AddOwner(
+            typeof(MultiSelectTreeView), new FrameworkPropertyMetadata(
+                -1,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
+                new PropertyChangedCallback(OnSelectedIndexChanged),
+                new CoerceValueCallback(CoerceSelectedIndex)));
+
+        private static void OnSelectedIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+        
+        private static object CoerceSelectedIndex(DependencyObject d, object basevalue)
+        {
+            var treeView = (ItemsControl) d;
+            if ((basevalue is int) && (int) basevalue >= treeView.Items.Count)
+            {
+                return DependencyProperty.UnsetValue;
+            }
+ 
+            return basevalue;
+        }
+
         private bool TryToUpdateSelectedItemBySelectedValue(object selectedValue)
         {
             if (IsUpdatingSelectedItems)
