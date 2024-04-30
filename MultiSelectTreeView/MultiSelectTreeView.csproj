@@ -69,6 +69,7 @@
     <Compile Include="Controls\ISelectionStrategy.cs" />
     <Compile Include="Controls\ListExtensions.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
+    <Compile Include="Controls\MultiSelectTreeView_Selection.cs" />
     <Compile Include="Controls\SelectionMultiple.cs" />
     <Compile Include="Controls\SelectionSingle.cs" />
     <Compile Include="Controls\MultiSelectTreeViewItem.cs" />
