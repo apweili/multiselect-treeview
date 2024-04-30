@@ -31,7 +31,7 @@ namespace Demo
 			var rootNode = new TreeItemViewModel(null, false)
 			{
 				DisplayName = "rootNode",
-				SelectedItems = new List<TreeItemViewModel>() 
+				SelectedItems = new ObservableCollection<object>()
 			};
 			_rootNode = rootNode;
 			var node1 = new TreeItemViewModel(rootNode, false) { DisplayName = "element1 (editable)", IsEditable = true };
@@ -67,10 +67,11 @@ namespace Demo
 			DataContext = rootNode;
 
 			// Preset some node states
-			node1.IsSelected = true;
+			// node1.IsSelected = true;
 			// node13.IsSelected = true;
 			node14.IsExpanded = true;
 			_nodeToAdd = node132;
+			rootNode.SelectedItems.Add(node1);
 		}
 
 		private void TheSpecialTreeView_PreviewSelectionChanged(object sender, PreviewSelectionChangedEventArgs e)

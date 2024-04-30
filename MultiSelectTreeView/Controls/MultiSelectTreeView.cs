@@ -308,9 +308,10 @@ namespace System.Windows.Controls
 
         public MultiSelectTreeView()
         {
-            var selectedItems = new ObservableCollection<object>();
-            selectedItems.CollectionChanged += OnSelectedItemsChanged;
-            SetValue(InternalSelectedItemsPropertyKey, selectedItems);
+            var internalSelectedItems = new ObservableCollection<object>();
+            internalSelectedItems.CollectionChanged += OnInternalSelectedItemsChanged;
+            internalSelectedItems.CollectionChanged += OnInternalSelectedItemsChangedForExternalSelectedItems;
+            SetValue(InternalSelectedItemsPropertyKey, internalSelectedItems);
             Selection = new SelectionMultiple(this);
             Selection.PreviewSelectionChanged += PreviewSelectionChangedHandler;
         }
@@ -663,26 +664,172 @@ namespace System.Windows.Controls
             return new MultiSelectTreeViewAutomationPeer(this);
         }
 
+        private void SyncInternalAndExternalSelectedItems()
+        {
+            if (SelectedItems == null)
+            {
+                InternalSelectedItems.Clear();
+                return;
+            }
+            
+            var externalSelectedItems = SelectedItems.Cast<object>().ToList();
+            InternalSelectedItems.Clear();
+            SelectedItems.Clear();
+            foreach (var item in externalSelectedItems)
+            {
+                InternalSelectedItems.Add(item);
+            }
+        }
+
         private static void OnSelectedItemsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MultiSelectTreeView treeView = (MultiSelectTreeView)d;
+            var treeView = (MultiSelectTreeView)d; 
             if (e.OldValue != null)
             {
-                INotifyCollectionChanged collection = e.OldValue as INotifyCollectionChanged;
+                var collection = e.OldValue as INotifyCollectionChanged;
                 if (collection != null)
                 {
-                    collection.CollectionChanged -= treeView.OnSelectedItemsChanged;
+                    collection.CollectionChanged -= treeView.OnExternalSelectedItemsCollectionChanged;
                 }
             }
-
+           
             if (e.NewValue != null)
             {
-                INotifyCollectionChanged collection = e.NewValue as INotifyCollectionChanged;
+                var collection = e.NewValue as INotifyCollectionChanged;
                 if (collection != null)
                 {
-                    collection.CollectionChanged += treeView.OnSelectedItemsChanged;
+                    collection.CollectionChanged += treeView.OnExternalSelectedItemsCollectionChanged; 
                 }
             }
+            
+            treeView.SyncInternalAndExternalSelectedItems();
+        }
+
+        private bool IsSyncInternalAndExternalSelectedItems { get; set; }
+
+        private void OnInternalSelectedItemsChangedForExternalSelectedItems(object sender,
+            NotifyCollectionChangedEventArgs e)
+        {
+            var selectedItems = SelectedItems as ObservableCollection<object>;
+            if (selectedItems == null)
+            {
+                return;
+            }
+            
+            UpdateSelectedItems(selectedItems, e);
+        }
+        
+        private void OnExternalSelectedItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var selectedItems = (ObservableCollection<object>)InternalSelectedItems;
+            UpdateSelectedItems(selectedItems, e);
+        }
+
+        private void UpdateSelectedItems(ObservableCollection<object> selectedItems, NotifyCollectionChangedEventArgs e)
+        {
+            if (IsSyncInternalAndExternalSelectedItems)
+            {
+                return;
+            }
+
+            try
+            {
+                IsSyncInternalAndExternalSelectedItems = true;
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (var item in e.NewItems)
+                        {
+                            selectedItems.Add(item); 
+                        }
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (var item in e.OldItems)
+                        {
+                            selectedItems.Remove(item); 
+                        }
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        selectedItems.Clear();
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                } 
+            }
+            finally
+            {
+                IsSyncInternalAndExternalSelectedItems = false;
+            } 
+        }
+        
+          // this eventhandler reacts on the firing control to, in order to update the own status
+        private void OnInternalSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var addedItems = new ArrayList();
+            var removedItems = new ArrayList();
+
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+#if DEBUG
+                    // Make sure we don't confuse MultiSelectTreeViewItems and their DataContexts while development
+                    if (e.NewItems.OfType<MultiSelectTreeViewItem>().Any())
+                        throw new ArgumentException(
+                            "A MultiSelectTreeViewItem instance was added to the SelectedItems collection. Only their DataContext instances must be added to this list!");
+#endif
+                    object last = null;
+                    foreach (var item in GetTreeViewItemsFor(e.NewItems))
+                    {
+                        if (!item.IsSelected)
+                        {
+                            item.IsSelected = true;
+                        }
+
+                        last = item.DataContext;
+                    }
+
+                    addedItems.AddRange(e.NewItems);
+                    LastSelectedItem = last;
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (var item in GetTreeViewItemsFor(e.OldItems))
+                    {
+                        item.IsSelected = false;
+                        if (item.DataContext == LastSelectedItem)
+                        {
+                            if (InternalSelectedItems.Count > 0)
+                            {
+                                LastSelectedItem = InternalSelectedItems[InternalSelectedItems.Count - 1];
+                            }
+                            else
+                            {
+                                LastSelectedItem = null;
+                            }
+                        }
+                    }
+
+                    removedItems.AddRange(e.OldItems);
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    foreach (var item in RecursiveTreeViewItemEnumerable(this, true))
+                    {
+                        if (item.IsSelected)
+                        {
+                            removedItems.Add(item.DataContext);
+                            item.IsSelected = false;
+                        }
+                    }
+
+                    LastSelectedItem = null;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            var selectionChangedEventArgs =
+                new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
+
+            OnSelectionChanged(selectionChangedEventArgs);
         }
 
         private static void OnSelectionModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -872,101 +1019,6 @@ namespace System.Windows.Controls
         internal IEnumerable<object> GetAllItems()
         {
             return RecursiveTreeViewItemEnumerable(this, true).Select(x => x.DataContext);
-        }
-
-        private void OnExternalSelectedItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            var internalSelectedItems = (ObservableCollection<object>)InternalSelectedItems;
-             switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    foreach (var item in e.NewItems)
-                    {
-                        internalSelectedItems.Add(item); 
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    foreach (var item in e.OldItems)
-                    {
-                        internalSelectedItems.Remove(item); 
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    internalSelectedItems.Clear();
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-        
-        // this eventhandler reacts on the firing control to, in order to update the own status
-        private void OnSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            var addedItems = new ArrayList();
-            var removedItems = new ArrayList();
-
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-#if DEBUG
-                    // Make sure we don't confuse MultiSelectTreeViewItems and their DataContexts while development
-                    if (e.NewItems.OfType<MultiSelectTreeViewItem>().Any())
-                        throw new ArgumentException(
-                            "A MultiSelectTreeViewItem instance was added to the SelectedItems collection. Only their DataContext instances must be added to this list!");
-#endif
-                    object last = null;
-                    foreach (var item in GetTreeViewItemsFor(e.NewItems))
-                    {
-                        if (!item.IsSelected)
-                        {
-                            item.IsSelected = true;
-                        }
-
-                        last = item.DataContext;
-                    }
-
-                    addedItems.AddRange(e.NewItems);
-                    LastSelectedItem = last;
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    foreach (var item in GetTreeViewItemsFor(e.OldItems))
-                    {
-                        item.IsSelected = false;
-                        if (item.DataContext == LastSelectedItem)
-                        {
-                            if (InternalSelectedItems.Count > 0)
-                            {
-                                LastSelectedItem = InternalSelectedItems[InternalSelectedItems.Count - 1];
-                            }
-                            else
-                            {
-                                LastSelectedItem = null;
-                            }
-                        }
-                    }
-
-                    removedItems.AddRange(e.OldItems);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    foreach (var item in RecursiveTreeViewItemEnumerable(this, true))
-                    {
-                        if (item.IsSelected)
-                        {
-                            removedItems.Add(item.DataContext);
-                            item.IsSelected = false;
-                        }
-                    }
-
-                    LastSelectedItem = null;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            var selectionChangedEventArgs =
-                new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
-
-            OnSelectionChanged(selectionChangedEventArgs);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
