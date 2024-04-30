@@ -115,7 +115,7 @@ namespace System.Windows.Controls
 
         private void UpdateSelectedValueByPath(string newValuePath)
         {
-            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled || InternalSelectedItems.Count != 1)
+            if (InternalSelectedItems.Count != 1)
             {
                 return;
             }
@@ -132,6 +132,11 @@ namespace System.Windows.Controls
                 return;
             }
 
+            if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            {
+                throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
+            }
+            
             treeView.UpdateSelectedValueByPath(e.NewValue as string);
         }
 
@@ -188,7 +193,7 @@ namespace System.Windows.Controls
 
             if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
-                return null;
+                throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
             }
 
             if (!treeView.TryToUpdateSelectedItemBySelectedValue(basevalue))
@@ -205,49 +210,49 @@ namespace System.Windows.Controls
             {
                 return true;
             }
-
+            
+            object selectedItem;
             if (selectedValue == null)
             {
-                return false;
-            }
-
-            var valuePath = SelectedValuePath;
-            var items = GetAllItems();
-            object selectedItem;
-            if (string.IsNullOrEmpty(valuePath))
-            {
-                selectedItem = items.FirstOrDefault(selectedValue.Equals);
+                selectedItem = null;
             }
             else
             {
-                selectedItem = items.FirstOrDefault(item => item != null &&
-                                                            selectedValue.Equals(
-                                                                PropertyPathHelper.GetObjectByPropertyPath(item,
-                                                                    valuePath)));
+                var valuePath = SelectedValuePath;
+                var items = GetAllItems();
+                if (string.IsNullOrEmpty(valuePath))
+                {
+                    selectedItem = items.FirstOrDefault(selectedValue.Equals);
+                }
+                else
+                {
+                    selectedItem = items.FirstOrDefault(item => item != null &&
+                                                                selectedValue.Equals(
+                                                                    PropertyPathHelper.GetObjectByPropertyPath(item,
+                                                                        valuePath)));
+                } 
             }
 
-            if (selectedItem == null)
-            {
-                return false;
-            }
-
-            if (InternalSelectedItems.Contains(selectedItem))
+            if (selectedItem != null && InternalSelectedItems.Contains(selectedItem))
             {
                 return true;
             }
 
             var lastSelectedItem = LastSelectedItem;
             InternalSelectedItems.Clear();
-            InternalSelectedItems.Add(selectedItem);
+            if (selectedItem != null)
+            {
+                InternalSelectedItems.Add(selectedItem); 
+            }
+            
             LastSelectedItem = lastSelectedItem;
             return true;
         }
 
         private bool IsUpdatingSelectedItems { get; set; }
 
-        private void SyncSelectedValueBySelectedItem()
+        private void SyncSelectedValueWhileUpdatingSelectedItem()
         {
-            SelectedValue = null;
             if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
                 return;
@@ -292,7 +297,7 @@ namespace System.Windows.Controls
                 return;
             }
 
-            SyncSelectedValueBySelectedItem();
+            SyncSelectedValueWhileUpdatingSelectedItem();
         }
 
         private static void OnSelectedItemsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -444,12 +449,11 @@ namespace System.Windows.Controls
 
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                SyncSelectedValueBySelectedItem();
+                SyncSelectedValueWhileUpdatingSelectedItem();
             }
 
             var selectionChangedEventArgs =
                 new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
-
             OnSelectionChanged(selectionChangedEventArgs);
         }
     }
