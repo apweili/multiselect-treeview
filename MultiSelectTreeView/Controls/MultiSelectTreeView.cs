@@ -94,12 +94,17 @@ namespace System.Windows.Controls
         {
             var internalSelectedItems = new ObservableCollection<object>();
             internalSelectedItems.CollectionChanged += OnInternalSelectedItemsChanged;
-            internalSelectedItems.CollectionChanged += OnInternalSelectedItemsChangedForExternalSelectedItems;
             SetValue(InternalSelectedItemsPropertyKey, internalSelectedItems);
             Selection = new SelectionMultiple(this);
             Selection.PreviewSelectionChanged += PreviewSelectionChangedHandler;
+            this.Loaded += OnLoaded;
         }
 
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            TriggerSelection();
+        }
+        
         #endregion
 
         #region Public Properties

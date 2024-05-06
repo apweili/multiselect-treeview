@@ -15,6 +15,7 @@
     ResizeMode="CanResizeWithGrip">
 
     <DockPanel Margin="0,0,12,0">
+        <Button Width="100" Click="ButtonBase_OnClick"></Button>
         <TextBlock DockPanel.Dock="Top" Style="{StaticResource FirstCaption}">The TreeView control</TextBlock>
         <controls:MultiSelectTreeView
             Name="TheSpecialTreeView"

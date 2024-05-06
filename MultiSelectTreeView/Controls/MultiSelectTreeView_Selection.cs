@@ -62,9 +62,9 @@ namespace System.Windows.Controls
             {
                 return;
             }
-
-            var index = treeView.Items.IndexOf(e.NewValue);
-            treeView.SelectedIndex = index;
+            
+            treeView.SelectedItems.Clear();
+            treeView.SelectedItems.Add(e.NewValue); 
         }
 
         /// <summary>
@@ -264,8 +264,6 @@ namespace System.Windows.Controls
             set { SetValue(SelectedIndexProperty, value); }
         }
 
-        private bool IsSettingSelectedIndex { get; set; }
-
         private static void OnSelectedIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var treeView = (MultiSelectTreeView)d;
@@ -273,13 +271,14 @@ namespace System.Windows.Controls
             {
                 return;
             }
-
+            
             var items = treeView.Items;
             var newValue = (int)e.NewValue;
-            treeView.IsSettingSelectedIndex = true;
             treeView.SelectedItems.Clear();
-            treeView.SelectedItems.Add(items[newValue]);
-            treeView.IsSettingSelectedIndex = false;
+            if (newValue > -1)
+            {
+                treeView.SelectedItems.Add(items[newValue]); 
+            }
         }
 
         private static object CoerceSelectedIndex(DependencyObject d, object baseValue)
@@ -295,11 +294,6 @@ namespace System.Windows.Controls
 
         private bool TryToUpdateSelectedItemBySelectedValue(object selectedValue)
         {
-            if (IsUpdatingSelectedItems)
-            {
-                return true;
-            }
-
             object selectedItem;
             if (selectedValue == null)
             {
@@ -327,7 +321,7 @@ namespace System.Windows.Controls
                 return true;
             }
 
-            var lastSelectedItem = LastSelectedItem;
+            var lastSelectedItem = InternalSelectedItems.Count > 0 ? InternalSelectedItems.Last() : null;
             InternalSelectedItems.Clear();
             if (selectedItem != null)
             {
@@ -340,28 +334,35 @@ namespace System.Windows.Controls
 
         private bool IsUpdatingSelectedItems { get; set; }
 
-        private void SyncSelectedValueWhileUpdatingSelectedItem()
+        private void SyncSelectedInfoWhileUpdatingSelectedItem()
         {
             if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
                 return;
             }
-
-            if (InternalSelectedItems.Count != 1)
+            
+            object selectedItem;
+            if (InternalSelectedItems.Count == 0)
             {
-                return;
+                selectedItem = null;
+            }
+            else
+            {
+                selectedItem = InternalSelectedItems.Last(); 
             }
 
-            var selectedItem = InternalSelectedItems.First();
-            IsUpdatingSelectedItems = true;
-            try
+            if (selectedItem != null)
             {
+                SelectedItem = selectedItem;
+                SelectedIndex = Items.IndexOf(selectedItem);
                 SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem,
-                    SelectedValuePath);
+                    SelectedValuePath); 
             }
-            finally
+            else
             {
-                IsUpdatingSelectedItems = false;
+                SelectedItem = null;
+                SelectedIndex = -1;
+                SelectedValue = null;
             }
         }
 
@@ -380,13 +381,6 @@ namespace System.Windows.Controls
             {
                 InternalSelectedItems.Add(item);
             }
-
-            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-            {
-                return;
-            }
-
-            SyncSelectedValueWhileUpdatingSelectedItem();
         }
 
         private static void OnSelectedItemsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -415,7 +409,7 @@ namespace System.Windows.Controls
 
         private bool IsSyncInternalAndExternalSelectedItems { get; set; }
 
-        private void OnInternalSelectedItemsChangedForExternalSelectedItems(object sender,
+        private void SyncExternalSelectedItems(object sender,
             NotifyCollectionChangedEventArgs e)
         {
             var selectedItems = SelectedItems as ObservableCollection<object>;
@@ -471,9 +465,29 @@ namespace System.Windows.Controls
                 IsSyncInternalAndExternalSelectedItems = false;
             }
         }
+        
+         private void OnInternalSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (IsUpdatingSelectedItems)
+            {
+                return;
+            }
+
+            try
+            {
+                IsUpdatingSelectedItems = true;
+                SyncExternalSelectedItems(sender, e);
+                OnInternalSelectedItemsChangedCore(sender, e);
+            }
+            finally
+            {
+                IsUpdatingSelectedItems = false;
+            }
+            
+        }
 
         // this eventhandler reacts on the firing control to, in order to update the own status
-        private void OnInternalSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnInternalSelectedItemsChangedCore(object sender, NotifyCollectionChangedEventArgs e)
         {
             var addedItems = new ArrayList();
             var removedItems = new ArrayList();
@@ -536,14 +550,20 @@ namespace System.Windows.Controls
                     throw new InvalidOperationException();
             }
 
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                SyncSelectedValueWhileUpdatingSelectedItem();
-            }
-
+            SyncSelectedInfoWhileUpdatingSelectedItem();
             var selectionChangedEventArgs =
                 new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
             OnSelectionChanged(selectionChangedEventArgs);
+        }
+
+        private void TriggerSelection()
+        {
+            var internalSelectedItems = InternalSelectedItems.Cast<object>().ToList();
+            InternalSelectedItems.Clear();
+            foreach (var selectedItem in internalSelectedItems)
+            {
+                InternalSelectedItems.Add(selectedItem);
+            }
         }
     }
 }
