@@ -34,6 +34,50 @@ namespace System.Windows.Controls
             remove => RemoveHandler(PreviewSelectionChangedEvent, value);
         }
 
+        /// <summary>
+        ///     SelectedItem DependencyProperty
+        /// </summary>
+        public static readonly DependencyProperty SelectedItemProperty =
+            Selector.SelectedItemProperty.AddOwner(typeof(MultiSelectTreeView), new FrameworkPropertyMetadata(
+                null,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                new PropertyChangedCallback(OnSelectedItemChanged),
+                new CoerceValueCallback(CoerceSelectedItem)));
+
+        private static object CoerceSelectedItem(DependencyObject d, object baseValue)
+        {
+            var treeView = (ItemsControl)d;
+            if (treeView == null)
+            {
+                return DependencyProperty.UnsetValue;
+            }
+
+            return treeView.Items.Contains(baseValue) ? baseValue : DependencyProperty.UnsetValue;
+        }
+
+        private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var treeView = (MultiSelectTreeView)d;
+            if (treeView == null)
+            {
+                return;
+            }
+
+            var index = treeView.Items.IndexOf(e.NewValue);
+            treeView.SelectedIndex = index;
+        }
+
+        /// <summary>
+        ///  The first item in the current selection, or null if the selection is empty.
+        /// </summary>
+        [Bindable(true), Category("Appearance"),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public object SelectedItem
+        {
+            get { return GetValue(SelectedItemProperty); }
+            set { SetValue(SelectedItemProperty, value); }
+        }
+
         public static DependencyPropertyKey LastSelectedItemPropertyKey = DependencyProperty.RegisterReadOnly(
             "LastSelectedItem",
             typeof(object),
@@ -136,7 +180,7 @@ namespace System.Windows.Controls
             {
                 throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
             }
-            
+
             treeView.UpdateSelectedValueByPath(e.NewValue as string);
         }
 
@@ -183,7 +227,7 @@ namespace System.Windows.Controls
         {
         }
 
-        private static object CoerceSelectedValue(DependencyObject d, object basevalue)
+        private static object CoerceSelectedValue(DependencyObject d, object baseValue)
         {
             var treeView = d as MultiSelectTreeView;
             if (treeView == null)
@@ -196,12 +240,12 @@ namespace System.Windows.Controls
                 throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
             }
 
-            if (!treeView.TryToUpdateSelectedItemBySelectedValue(basevalue))
+            if (!treeView.TryToUpdateSelectedItemBySelectedValue(baseValue))
             {
                 return null;
             }
 
-            return basevalue;
+            return baseValue;
         }
 
         /// <summary>
@@ -214,20 +258,39 @@ namespace System.Windows.Controls
                 new PropertyChangedCallback(OnSelectedIndexChanged),
                 new CoerceValueCallback(CoerceSelectedIndex)));
 
+        public int SelectedIndex
+        {
+            get { return (int)GetValue(SelectedIndexProperty); }
+            set { SetValue(SelectedIndexProperty, value); }
+        }
+
+        private bool IsSettingSelectedIndex { get; set; }
+
         private static void OnSelectedIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            var treeView = (MultiSelectTreeView)d;
+            if (treeView == null)
+            {
+                return;
+            }
+
+            var items = treeView.Items;
+            var newValue = (int)e.NewValue;
+            treeView.IsSettingSelectedIndex = true;
+            treeView.SelectedItems.Clear();
+            treeView.SelectedItems.Add(items[newValue]);
+            treeView.IsSettingSelectedIndex = false;
         }
-        
-        private static object CoerceSelectedIndex(DependencyObject d, object basevalue)
+
+        private static object CoerceSelectedIndex(DependencyObject d, object baseValue)
         {
-            var treeView = (ItemsControl) d;
-            if ((basevalue is int) && (int) basevalue >= treeView.Items.Count)
+            var treeView = (ItemsControl)d;
+            if ((baseValue is int) && (int)baseValue >= treeView.Items.Count)
             {
                 return DependencyProperty.UnsetValue;
             }
- 
-            return basevalue;
+
+            return baseValue;
         }
 
         private bool TryToUpdateSelectedItemBySelectedValue(object selectedValue)
@@ -236,7 +299,7 @@ namespace System.Windows.Controls
             {
                 return true;
             }
-            
+
             object selectedItem;
             if (selectedValue == null)
             {
@@ -256,7 +319,7 @@ namespace System.Windows.Controls
                                                                 selectedValue.Equals(
                                                                     PropertyPathHelper.GetObjectByPropertyPath(item,
                                                                         valuePath)));
-                } 
+                }
             }
 
             if (selectedItem != null && InternalSelectedItems.Contains(selectedItem))
@@ -268,9 +331,9 @@ namespace System.Windows.Controls
             InternalSelectedItems.Clear();
             if (selectedItem != null)
             {
-                InternalSelectedItems.Add(selectedItem); 
+                InternalSelectedItems.Add(selectedItem);
             }
-            
+
             LastSelectedItem = lastSelectedItem;
             return true;
         }
