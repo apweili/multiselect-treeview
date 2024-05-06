@@ -50,6 +50,12 @@
   <PropertyGroup>
     <ApplicationIcon>MultiSelectTreeView.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>temp.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
@@ -159,6 +165,7 @@
     </EmbeddedResource>
     <AppDesigner Include="Properties\" />
     <None Include="NuGet\WPFMultiSelectTreeView.nuspec" />
+    <None Include="temp.snk" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="MultiSelectTreeView.ico" />

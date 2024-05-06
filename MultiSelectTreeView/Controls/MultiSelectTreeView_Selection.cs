@@ -24,14 +24,14 @@ namespace System.Windows.Controls
 
         public event SelectionChangedEventHandler SelectionChanged
         {
-            add => AddHandler(SelectionChangedEvent, value);
-            remove => RemoveHandler(SelectionChangedEvent, value);
+            add { AddHandler(SelectionChangedEvent, value); }
+            remove { RemoveHandler(SelectionChangedEvent, value); }
         }
 
         public event PreviewSelectionChangedEventHandler PreviewSelectionChanged
         {
-            add => AddHandler(PreviewSelectionChangedEvent, value);
-            remove => RemoveHandler(PreviewSelectionChangedEvent, value);
+            add { AddHandler(PreviewSelectionChangedEvent, value); }
+            remove { RemoveHandler(PreviewSelectionChangedEvent, value); }
         }
 
         /// <summary>
@@ -92,8 +92,8 @@ namespace System.Windows.Controls
         /// </summary>
         public object LastSelectedItem
         {
-            get => GetValue(LastSelectedItemProperty);
-            private set => SetValue(LastSelectedItemPropertyKey, value);
+            get { return GetValue(LastSelectedItemProperty); }
+            private set { SetValue(LastSelectedItemPropertyKey, value); }
         }
 
         /// <summary>
@@ -153,8 +153,8 @@ namespace System.Windows.Controls
         [Localizability(LocalizationCategory.NeverLocalize)] // not localizable
         public string SelectedValuePath
         {
-            get => (string)GetValue(SelectedValuePathProperty);
-            set => SetValue(SelectedValuePathProperty, value);
+            get { return (string)GetValue(SelectedValuePathProperty); }
+            set { SetValue(SelectedValuePathProperty, value); }
         }
 
         private void UpdateSelectedValueByPath(string newValuePath)
@@ -178,7 +178,8 @@ namespace System.Windows.Controls
 
             if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
-                throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
+                return;
+                // throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
             }
 
             treeView.UpdateSelectedValueByPath(e.NewValue as string);
@@ -215,8 +216,8 @@ namespace System.Windows.Controls
          DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object SelectedValue
         {
-            get => GetValue(SelectedValueProperty);
-            set => SetValue(SelectedValueProperty, value);
+            get { return GetValue(SelectedValueProperty); }
+            set { SetValue(SelectedValueProperty, value); }
         }
 
         /// <summary>
@@ -237,7 +238,8 @@ namespace System.Windows.Controls
 
             if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
-                throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
+                return null;
+                // throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
             }
 
             if (!treeView.TryToUpdateSelectedItemBySelectedValue(baseValue))

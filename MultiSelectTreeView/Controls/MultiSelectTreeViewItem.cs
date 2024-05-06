@@ -476,7 +476,8 @@ namespace System.Windows.Controls
                     foreach (var item in oldValue)
                     {
                         parentTV.InternalSelectedItems.Remove(item);
-                        if (parentTV.Selection is SelectionMultiple multiselection)
+                        var multiselection = parentTV.Selection as SelectionMultiple;
+                        if (multiselection != null)
                         {
                             multiselection.InvalidateLastShiftRoot(item);
                         }
@@ -709,7 +710,8 @@ namespace System.Windows.Controls
                         foreach (var item in e.OldItems)
                         {
                             parentTV.InternalSelectedItems.Remove(item);
-                            if (parentTV.Selection is SelectionMultiple multiselection)
+                            var multiselection = parentTV.Selection as SelectionMultiple;
+                            if (multiselection != null)
                             {
                                 multiselection.InvalidateLastShiftRoot(item);
                             }

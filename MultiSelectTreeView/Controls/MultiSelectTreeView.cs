@@ -14,6 +14,7 @@ namespace System.Windows.Controls
     public partial class MultiSelectTreeView : ItemsControl
     {
         #region Constants and Fields
+
         public static DependencyProperty BackgroundSelectionRectangleProperty = DependencyProperty.Register(
             "BackgroundSelectionRectangle",
             typeof(Brush),
@@ -104,52 +105,52 @@ namespace System.Windows.Controls
         {
             TriggerSelection();
         }
-        
+
         #endregion
 
         #region Public Properties
 
         public Brush BackgroundSelectionRectangle
         {
-            get => (Brush)GetValue(BackgroundSelectionRectangleProperty);
-            set => SetValue(BackgroundSelectionRectangleProperty, value);
+            get { return (Brush)GetValue(BackgroundSelectionRectangleProperty); }
+            set { SetValue(BackgroundSelectionRectangleProperty, value); }
         }
 
         public Brush BorderBrushSelectionRectangle
         {
-            get => (Brush)GetValue(BorderBrushSelectionRectangleProperty);
-            set => SetValue(BorderBrushSelectionRectangleProperty, value);
+            get { return (Brush)GetValue(BorderBrushSelectionRectangleProperty); }
+            set { SetValue(BorderBrushSelectionRectangleProperty, value); }
         }
 
         public bool HoverHighlighting
         {
-            get => (bool)GetValue(HoverHighlightingProperty);
-            set => SetValue(HoverHighlightingProperty, value);
+            get { return (bool)GetValue(HoverHighlightingProperty); }
+            set { SetValue(HoverHighlightingProperty, value); }
         }
 
         public bool VerticalRulers
         {
-            get => (bool)GetValue(VerticalRulersProperty);
-            set => SetValue(VerticalRulersProperty, value);
+            get { return (bool)GetValue(VerticalRulersProperty); }
+            set { SetValue(VerticalRulersProperty, value); }
         }
 
         public int ItemIndent
         {
-            get => (int)GetValue(ItemIndentProperty);
-            set => SetValue(ItemIndentProperty, value);
+            get { return (int)GetValue(ItemIndentProperty); }
+            set { SetValue(ItemIndentProperty, value); }
         }
 
         [Browsable(false)]
         public bool IsKeyboardMode
         {
-            get => (bool)GetValue(IsKeyboardModeProperty);
-            set => SetValue(IsKeyboardModeProperty, value);
+            get { return (bool)GetValue(IsKeyboardModeProperty); }
+            set { SetValue(IsKeyboardModeProperty, value); }
         }
 
         public bool AllowEditItems
         {
-            get => (bool)GetValue(AllowEditItemsProperty);
-            set => SetValue(AllowEditItemsProperty, value);
+            get { return (bool)GetValue(AllowEditItemsProperty); }
+            set { SetValue(AllowEditItemsProperty, value); }
         }
 
         /// <summary>
@@ -157,8 +158,8 @@ namespace System.Windows.Controls
         /// </summary>
         public TreeViewSelectionMode SelectionMode
         {
-            get => (TreeViewSelectionMode)GetValue(SelectionModeProperty);
-            set => SetValue(SelectionModeProperty, value);
+            get { return (TreeViewSelectionMode)GetValue(SelectionModeProperty); }
+            set { SetValue(SelectionModeProperty, value); }
         }
 
         private MultiSelectTreeViewItem lastFocusedItem;
@@ -168,7 +169,7 @@ namespace System.Windows.Controls
         /// </summary>
         internal MultiSelectTreeViewItem LastFocusedItem
         {
-            get => lastFocusedItem;
+            get { return lastFocusedItem; }
             set
             {
                 // Only the last focused MultiSelectTreeViewItem may have IsTabStop = true
