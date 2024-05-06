@@ -2,8 +2,9 @@
 {
 	public enum TreeViewSelectionMode
 	{
-		MultiSelectEnabled = 0,
-		SingleSelectOnly
+		SingleSelectOnly,
+		MultiSelectEnabled 
+	
 	}
 	
     internal interface ISelectionStrategy : IDisposable

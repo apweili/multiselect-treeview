@@ -159,12 +159,12 @@ namespace System.Windows.Controls
 
         private void UpdateSelectedValueByPath(string newValuePath)
         {
-            if (InternalSelectedItems.Count != 1)
+            if (InternalSelectedItems.Count == 0)
             {
                 return;
             }
 
-            var selectedItem = InternalSelectedItems.First();
+            var selectedItem = InternalSelectedItems.Last();
             SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem, newValuePath);
         }
 
@@ -338,11 +338,6 @@ namespace System.Windows.Controls
 
         private void SyncSelectedInfoWhileUpdatingSelectedItem()
         {
-            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-            {
-                return;
-            }
-            
             object selectedItem;
             if (InternalSelectedItems.Count == 0)
             {
@@ -353,22 +348,21 @@ namespace System.Windows.Controls
                 selectedItem = InternalSelectedItems.Last(); 
             }
 
+            SelectedItem = selectedItem;
             if (selectedItem != null)
             {
-                SelectedItem = selectedItem;
                 SelectedIndex = Items.IndexOf(selectedItem);
                 SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem,
                     SelectedValuePath); 
             }
             else
             {
-                SelectedItem = null;
                 SelectedIndex = -1;
                 SelectedValue = null;
             }
         }
 
-        private void SyncInternalAndExternalSelectedItems()
+        private void SyncInternalByExternalSelectedItems()
         {
             if (SelectedItems == null)
             {
@@ -377,7 +371,6 @@ namespace System.Windows.Controls
             }
 
             var externalSelectedItems = SelectedItems.Cast<object>().ToList();
-            InternalSelectedItems.Clear();
             SelectedItems.Clear();
             foreach (var item in externalSelectedItems)
             {
@@ -406,7 +399,7 @@ namespace System.Windows.Controls
                 }
             }
 
-            treeView.SyncInternalAndExternalSelectedItems();
+            treeView.SyncInternalByExternalSelectedItems();
         }
 
         private bool IsSyncInternalAndExternalSelectedItems { get; set; }

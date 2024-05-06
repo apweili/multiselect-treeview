@@ -520,28 +520,28 @@ namespace System.Windows.Controls
         {
             foreach (var item in parent.Items)
             {
-                MultiSelectTreeViewItem tve =
+                var container =
                     (MultiSelectTreeViewItem)parent.ItemContainerGenerator.ContainerFromItem(item);
-                if (tve == null)
+                if (container == null)
                 {
                     // Container was not generated, therefore it is probably not visible, so we can ignore it.
                     continue;
                 }
 
-                if (!includeInvisible && !tve.IsVisible)
+                if (!includeInvisible && !container.IsVisible)
                 {
                     continue;
                 }
 
-                if (!includeDisabled && !tve.IsEnabled)
+                if (!includeDisabled && !container.IsEnabled)
                 {
                     continue;
                 }
 
-                yield return tve;
-                if (includeInvisible || tve.IsExpanded)
+                yield return container;
+                if (includeInvisible || container.IsExpanded)
                 {
-                    foreach (var childItem in RecursiveTreeViewItemEnumerable(tve, includeInvisible, includeDisabled))
+                    foreach (var childItem in RecursiveTreeViewItemEnumerable(container, includeInvisible, includeDisabled))
                     {
                         yield return childItem;
                     }
