@@ -55,7 +55,7 @@ namespace System.Windows.Controls
 					}
 					if (!e2.CancelThis)
 					{
-						treeView.InternalSelectedItems.Remove(selItem);
+						treeView.UnSelectItem(selItem);
 					}
 				}
 			}
@@ -68,7 +68,7 @@ namespace System.Windows.Controls
 				return false;
 			}
 
-			treeView.InternalSelectedItems.Add(item.DataContext);
+			treeView.SelectItem(item.DataContext);
 			FocusHelper.Focus(item, true);
 			return true;
 		}
@@ -79,7 +79,7 @@ namespace System.Windows.Controls
 			OnPreviewSelectionChanged(e);
 			if (e.CancelAny) return false;
 
-			treeView.InternalSelectedItems.Remove(item.DataContext);
+			treeView.UnSelectItem(item.DataContext);
 			FocusHelper.Focus(item, bringIntoView);
 			return true;
 		}
@@ -150,9 +150,9 @@ namespace System.Windows.Controls
 			}
 
 			item.IsSelected = true;
-			if (!treeView.InternalSelectedItems.Contains(item.DataContext))
+			if (!treeView.IsItemSelected(item.DataContext))
 			{
-				treeView.InternalSelectedItems.Add(item.DataContext);
+				treeView.SelectItem(item.DataContext);
 			}
 			
 			FocusHelper.Focus(item, true);

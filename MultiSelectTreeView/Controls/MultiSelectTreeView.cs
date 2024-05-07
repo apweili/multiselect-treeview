@@ -63,7 +63,7 @@ namespace System.Windows.Controls
                     continue;
                 }
 
-                if (InternalSelectedItems.Contains(item))
+                if (IsItemSelected(item))
                 {
                     treeViewItem.IsSelected = true;
                 }
@@ -98,12 +98,6 @@ namespace System.Windows.Controls
             SetValue(InternalSelectedItemsPropertyKey, internalSelectedItems);
             Selection = new SelectionMultiple(this);
             Selection.PreviewSelectionChanged += PreviewSelectionChangedHandler;
-            this.Loaded += OnLoaded;
-        }
-
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            TriggerSelection();
         }
 
         #endregion
@@ -218,7 +212,7 @@ namespace System.Windows.Controls
                     }
                 }
 
-                InternalSelectedItems.Clear();
+                UnSelectAllItem();
             }
 
             return true;
@@ -364,7 +358,7 @@ namespace System.Windows.Controls
                 if (e.CancelAny) return false;
             }
 
-            InternalSelectedItems.Clear();
+            UnSelectAllItem();
             return true;
         }
 
@@ -470,10 +464,10 @@ namespace System.Windows.Controls
             }
 
             var defaultSelectedItem = treeView.InternalSelectedItems.Cast<object>().LastOrDefault();
-            treeView.InternalSelectedItems.Clear();
+            treeView.UnSelectAllItem();
             if (defaultSelectedItem != null)
             {
-                treeView.InternalSelectedItems.Add(defaultSelectedItem);
+                treeView.SelectItem(defaultSelectedItem);
             }
         }
 

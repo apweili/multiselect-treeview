@@ -62,9 +62,8 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
-            treeView.SelectedItems.Clear();
-            treeView.SelectedItems.Add(e.NewValue); 
+
+            treeView.SelectItem(e.NewValue);
         }
 
         /// <summary>
@@ -276,10 +275,10 @@ namespace System.Windows.Controls
             
             var items = treeView.Items;
             var newValue = (int)e.NewValue;
-            treeView.SelectedItems.Clear();
+            treeView.UnSelectAllItem();
             if (newValue > -1)
             {
-                treeView.SelectedItems.Add(items[newValue]); 
+                treeView.SelectItem(items[newValue]); 
             }
         }
 
@@ -318,23 +317,24 @@ namespace System.Windows.Controls
                 }
             }
 
-            if (selectedItem != null && InternalSelectedItems.Contains(selectedItem))
+            if (selectedItem != null && IsItemSelected(selectedItem))
             {
                 return true;
             }
 
             var lastSelectedItem = InternalSelectedItems.Count > 0 ? InternalSelectedItems.Last() : null;
-            InternalSelectedItems.Clear();
+            UnSelectAllItem();
             if (selectedItem != null)
             {
-                InternalSelectedItems.Add(selectedItem);
+                SelectItem(selectedItem);
             }
 
             LastSelectedItem = lastSelectedItem;
             return true;
         }
 
-        private bool IsUpdatingSelectedItems { get; set; }
+        private bool _isUpdatingSelectedItems;
+        private bool IsUpdatingSelectedItems => _isUpdatingSelectedItems;
 
         private void SyncSelectedInfoWhileUpdatingSelectedItem()
         {
@@ -366,7 +366,6 @@ namespace System.Windows.Controls
         {
             if (SelectedItems == null)
             {
-                InternalSelectedItems.Clear();
                 return;
             }
 
@@ -374,7 +373,7 @@ namespace System.Windows.Controls
             SelectedItems.Clear();
             foreach (var item in externalSelectedItems)
             {
-                InternalSelectedItems.Add(item);
+                SelectItem(item);
             }
         }
 
@@ -470,13 +469,13 @@ namespace System.Windows.Controls
 
             try
             {
-                IsUpdatingSelectedItems = true;
+                _isUpdatingSelectedItems = true;
                 SyncExternalSelectedItems(sender, e);
                 OnInternalSelectedItemsChangedCore(sender, e);
             }
             finally
             {
-                IsUpdatingSelectedItems = false;
+                _isUpdatingSelectedItems = false;
             }
             
         }
@@ -551,14 +550,72 @@ namespace System.Windows.Controls
             OnSelectionChanged(selectionChangedEventArgs);
         }
 
-        private void TriggerSelection()
+        public void SelectItem(object item)
         {
-            var internalSelectedItems = InternalSelectedItems.Cast<object>().ToList();
-            InternalSelectedItems.Clear();
-            foreach (var selectedItem in internalSelectedItems)
+            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
-                InternalSelectedItems.Add(selectedItem);
+                SelectItemInSingleSelectionMode(item);
+                return;
             }
+            
+            SelectItemInMultiSelectionMode(item); 
+        }
+        
+        private void SelectItemInMultiSelectionMode(object item)
+        {
+            if (IsUpdatingSelectedItems)
+            {
+                return;
+            }
+
+            if (IsItemSelected(item))
+            {
+                return;
+            }
+            
+            InternalSelectedItems.Add(item);
+        }
+        
+        private void SelectItemInSingleSelectionMode(object item)
+        {
+            if (IsUpdatingSelectedItems)
+            {
+                return;
+            }
+ 
+            InternalSelectedItems.Clear();
+            InternalSelectedItems.Add(item);
+        }
+
+        public void UnSelectItem(object item)
+        {
+            if (IsUpdatingSelectedItems)
+            {
+                return;
+            }
+
+            var index = InternalSelectedItems.IndexOf(item);
+            if (index < 0)
+            {
+                return;
+            }
+            
+            InternalSelectedItems.RemoveAt(index);
+        }
+
+        public void UnSelectAllItem()
+        {
+            if (IsUpdatingSelectedItems)
+            {
+                return;
+            }
+
+            InternalSelectedItems.Clear();
+        }
+
+        public bool IsItemSelected(object item)
+        {
+            return InternalSelectedItems.Contains(item);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Automation.Peers;
-using System.Windows.Data;
 using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -167,6 +166,13 @@ namespace System.Windows.Controls
 
         public MultiSelectTreeViewItem()
         {
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            MultiSelectTreeView parentTV = ParentTreeView;
+            IsSelected = parentTV.IsItemSelected(this.DataContext);
         }
 
         #endregion
@@ -397,9 +403,9 @@ namespace System.Windows.Controls
             {
                 if ((bool)e.NewValue)
                 {
-                    if (!item.ParentTreeView.InternalSelectedItems.Contains(item.DataContext))
+                    if (!item.ParentTreeView.IsItemSelected(item.DataContext))
                     {
-                        item.ParentTreeView.InternalSelectedItems.Add(item.DataContext);
+                        item.ParentTreeView.SelectItem(item.DataContext);
                     }
 
                     item.BringIntoView();
@@ -407,7 +413,7 @@ namespace System.Windows.Controls
                 }
                 else
                 {
-                    item.ParentTreeView.InternalSelectedItems.Remove(item.DataContext);
+                    item.ParentTreeView.UnSelectItem(item.DataContext);
                 }
             }
         }
@@ -475,7 +481,7 @@ namespace System.Windows.Controls
                 {
                     foreach (var item in oldValue)
                     {
-                        parentTV.InternalSelectedItems.Remove(item);
+                        parentTV.UnSelectItem(item);
                         var multiselection = parentTV.Selection as SelectionMultiple;
                         if (multiselection != null)
                         {
@@ -709,7 +715,7 @@ namespace System.Windows.Controls
                     {
                         foreach (var item in e.OldItems)
                         {
-                            parentTV.InternalSelectedItems.Remove(item);
+                            parentTV.UnSelectItem(item);
                             var multiselection = parentTV.Selection as SelectionMultiple;
                             if (multiselection != null)
                             {
