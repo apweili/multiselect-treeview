@@ -371,7 +371,7 @@ namespace System.Windows.Controls
 
         private void SyncExternalSelectedItems(NotifyCollectionChangedEventArgs e)
         {
-            var selectedItems = SelectedItems as ObservableCollection<object>;
+            var selectedItems = SelectedItems;
             if (selectedItems == null)
             {
                 return;
@@ -386,7 +386,7 @@ namespace System.Windows.Controls
             UpdateSelectedItems(selectedItems, e);
         }
 
-        private void UpdateSelectedItems(ObservableCollection<object> selectedItems, NotifyCollectionChangedEventArgs e)
+        private void UpdateSelectedItems(IList selectedItems, NotifyCollectionChangedEventArgs e)
         {
             if (IsSyncInternalAndExternalSelectedItems)
             {
