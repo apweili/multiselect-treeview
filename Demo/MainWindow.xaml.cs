@@ -119,53 +119,53 @@ namespace Demo
 
         private void ClearChildrenButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var selection = new object[TheSpecialTreeView.InternalSelectedItems.Count];
-            TheSpecialTreeView.InternalSelectedItems.CopyTo(selection, 0);
-            foreach (TreeItemViewModel node in selection)
-            {
-                if (node.Children != null)
-                {
-                    node.Children.Clear();
-                }
-            }
+            // var selection = new object[TheSpecialTreeView.InternalSelectedItems.Count];
+            // TheSpecialTreeView.InternalSelectedItems.CopyTo(selection, 0);
+            // foreach (TreeItemViewModel node in selection)
+            // {
+            //     if (node.Children != null)
+            //     {
+            //         node.Children.Clear();
+            //     }
+            // }
         }
 
         private void AddChildButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
-            {
-                if (!node.HasDummyChild)
-                {
-                    node.Children.Add(new TreeItemViewModel(node, false) { DisplayName = "newborn child" });
-                    node.IsExpanded = true;
-                }
-            }
-
-            if (_rootNode.SelectedItems.Contains(_nodeToAdd))
-            {
-                _rootNode.SelectedItems.Remove(_rootNode);
-            }
-            else
-            {
-                _rootNode.SelectedItems.Add(_nodeToAdd);
-            }
+            // foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
+            // {
+            //     if (!node.HasDummyChild)
+            //     {
+            //         node.Children.Add(new TreeItemViewModel(node, false) { DisplayName = "newborn child" });
+            //         node.IsExpanded = true;
+            //     }
+            // }
+            //
+            // if (_rootNode.SelectedItems.Contains(_nodeToAdd))
+            // {
+            //     _rootNode.SelectedItems.Remove(_rootNode);
+            // }
+            // else
+            // {
+            //     _rootNode.SelectedItems.Add(_nodeToAdd);
+            // }
         }
 
         private void ExpandNodesButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
-            {
-                node.IsExpanded = true;
-            }
+            // foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
+            // {
+            //     node.IsExpanded = true;
+            // }
         }
 
         private void HideNodesButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems.OfType<TreeItemViewModel>()
-                         .ToArray())
-            {
-                node.IsVisible = false;
-            }
+            // foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems.OfType<TreeItemViewModel>()
+            //              .ToArray())
+            // {
+            //     node.IsVisible = false;
+            // }
         }
 
         private void ShowNodesButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -235,28 +235,28 @@ namespace Demo
 
         private void ExpandMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
-            {
-                node.IsExpanded = true;
-            }
+            // foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
+            // {
+            //     node.IsExpanded = true;
+            // }
         }
 
         private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
-            {
-                node.IsEditing = true;
-                break;
-            }
+            // foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems)
+            // {
+            //     node.IsEditing = true;
+            //     break;
+            // }
         }
 
         private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems.Cast<TreeItemViewModel>()
-                         .ToArray())
-            {
-                node.Parent.Children.Remove(node);
-            }
+            // foreach (TreeItemViewModel node in TheSpecialTreeView.InternalSelectedItems.Cast<TreeItemViewModel>()
+            //              .ToArray())
+            // {
+            //     node.Parent.Children.Remove(node);
+            // }
         }
 
         private void ShowSecondCheck_Checked(object sender, RoutedEventArgs e)

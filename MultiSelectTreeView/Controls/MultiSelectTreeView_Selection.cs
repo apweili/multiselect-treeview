@@ -128,8 +128,10 @@ namespace System.Windows.Controls
             get { return (IList)GetValue(SelectedItemsProperty); }
             set { SetValue(SelectedItemsProperty, value); }
         }
+        
+        private bool IsItemsInitialized { get; set; }
 
-        public IList InternalSelectedItems
+        internal IList InternalSelectedItems
         {
             get { return (IList)GetValue(InternalSelectedItemsImplProperty); }
         }
@@ -247,6 +249,12 @@ namespace System.Windows.Controls
             }
 
             return baseValue;
+        }
+
+        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
+        {
+            base.OnItemsSourceChanged(oldValue, newValue);
+            IsItemsInitialized = true;
         }
 
         /// <summary>
