@@ -336,7 +336,7 @@ namespace System.Windows.Controls
             }
 
             var externalSelectedItems = SelectedItems.Cast<object>().ToList();
-            SelectedItems.Clear();
+            InternalSelectedItems.Clear();
             foreach (var item in externalSelectedItems)
             {
                 SelectItem(item);
@@ -382,7 +382,7 @@ namespace System.Windows.Controls
 
         private void OnExternalSelectedItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            var selectedItems = (ObservableCollection<object>)InternalSelectedItems;
+            var selectedItems = InternalSelectedItems;
             UpdateSelectedItems(selectedItems, e);
         }
 
