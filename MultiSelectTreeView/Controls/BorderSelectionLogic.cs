@@ -92,7 +92,7 @@ namespace System.Windows.Controls
 			// Capture the mouse right now so that the MouseUp event will not be missed
 			Mouse.Capture(treeView);
 
-			initialSelection = new HashSet<object>(treeView.InternalSelectedItems.Cast<object>());
+			initialSelection = new HashSet<object>(treeView.GetInternalSelectedItemsCopy());
 		}
 
 		private void OnMouseMove(object sender, MouseEventArgs e)
@@ -210,7 +210,7 @@ namespace System.Windows.Controls
 					if (newSelected)
 					{
 						// The item shall be selected
-						if (!treeView.InternalSelectedItems.Contains(item.DataContext))
+						if (!treeView.IsItemSelected(item.DataContext))
 						{
 							// The item is not currently selected. Try to select it.
 							if (!selection.SelectByRectangle(item))
@@ -226,7 +226,7 @@ namespace System.Windows.Controls
 					else
 					{
 						// The item shall be deselected
-						if (treeView.InternalSelectedItems.Contains(item.DataContext))
+						if (treeView.IsItemSelected(item.DataContext))
 						{
 							// The item is currently selected. Try to deselect it.
 							if (!selection.DeselectByRectangle(item))

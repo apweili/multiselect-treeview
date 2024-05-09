@@ -27,36 +27,31 @@ namespace System.Windows.Controls
 		
 		public bool Select(MultiSelectTreeViewItem item)
 		{
-			if (treeView.InternalSelectedItems.Count == 1 &&
-			    treeView.InternalSelectedItems[0] == item.DataContext)
+			var selectedItem = treeView.SelectedItem;
+			if (selectedItem != null)
 			{
 				// Requested to select the single already-selected item. Don't change the selection.
 				FocusHelper.Focus(item, true);
 				return true;
 			}
-			else
-			{
-				return SelectCore(item);
-			}
+
+			return SelectCore(item);
 		}
 
 		public bool SelectCore(MultiSelectTreeViewItem item)
 		{
-			if (treeView.InternalSelectedItems.Count > 0)
+			foreach (var selItem in treeView.GetInternalSelectedItemsCopy())
 			{
-				foreach (var selItem in new ArrayList(treeView.InternalSelectedItems))
+				var e2 = new PreviewSelectionChangedEventArgs(false, selItem);
+				OnPreviewSelectionChanged(e2);
+				if (e2.CancelAll)
 				{
-					var e2 = new PreviewSelectionChangedEventArgs(false, selItem);
-					OnPreviewSelectionChanged(e2);
-					if (e2.CancelAll)
-					{
-						FocusHelper.Focus(item);
-						return false;
-					}
-					if (!e2.CancelThis)
-					{
-						treeView.UnSelectItem(selItem);
-					}
+					FocusHelper.Focus(item);
+					return false;
+				}
+				if (!e2.CancelThis)
+				{
+					treeView.UnSelectItem(selItem);
 				}
 			}
 			

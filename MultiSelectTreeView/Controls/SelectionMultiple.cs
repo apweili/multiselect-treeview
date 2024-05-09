@@ -70,34 +70,27 @@ namespace System.Windows.Controls
 				{
 					return Deselect(item, true);
 				}
-				else
-				{
-					var e = new PreviewSelectionChangedEventArgs(true, item.DataContext);
-					OnPreviewSelectionChanged(e);
-					if (e.CancelAny)
-					{
-						FocusHelper.Focus(item, true);
-						return false;
-					}
 
-					return SelectCore(item);
-				}
-			}
-			else
-			{
-				if (treeView.InternalSelectedItems.Count == 1 &&
-					treeView.InternalSelectedItems[0] == item.DataContext)
+				var e = new PreviewSelectionChangedEventArgs(true, item.DataContext);
+				OnPreviewSelectionChanged(e);
+				if (e.CancelAny)
 				{
-					// Requested to select the single already-selected item. Don't change the selection.
 					FocusHelper.Focus(item, true);
-					lastShiftRoot = item.DataContext;
-					return true;
+					return false;
 				}
-				else
-				{
-					return SelectCore(item);
-				}
+
+				return SelectCore(item);
 			}
+
+			if (treeView.SelectedItem == item.DataContext)
+			{
+				// Requested to select the single already-selected item. Don't change the selection.
+				FocusHelper.Focus(item, true);
+				lastShiftRoot = item.DataContext;
+				return true;
+			}
+
+			return SelectCore(item);
 		}
 
 		internal bool SelectByRectangle(MultiSelectTreeViewItem item)
@@ -146,15 +139,13 @@ namespace System.Windows.Controls
 				}
 				lastShiftRoot = item.DataContext;
 			}
-			else if (IsShiftKeyDown && treeView.InternalSelectedItems.Count > 0)
+			else if (IsShiftKeyDown && treeView.GetSelectedItemsCount() > 0)
 			{
-				object firstSelectedItem = lastShiftRoot ?? treeView.InternalSelectedItems.First();
+				var selectedItems = treeView.GetInternalSelectedItemsCopy();
+				object firstSelectedItem = lastShiftRoot ?? selectedItems.First();
 				MultiSelectTreeViewItem shiftRootItem = treeView.GetTreeViewItemsFor(new List<object> { firstSelectedItem }).First();
-
 				var newSelection = treeView.GetNodesToSelectBetween(shiftRootItem, item).Select(n => n.DataContext).ToList();
 				// Make a copy of the list because we're modifying it while enumerating it
-				var selectedItems = new object[treeView.InternalSelectedItems.Count];
-				treeView.InternalSelectedItems.CopyTo(selectedItems, 0);
 				// Remove all items no longer selected
 				foreach (var selItem in selectedItems.Where(i => !newSelection.Contains(i)))
 				{
@@ -188,22 +179,19 @@ namespace System.Windows.Controls
 			}
 			else
 			{
-				if (treeView.InternalSelectedItems.Count > 0)
+				foreach (var selItem in treeView.GetInternalSelectedItemsCopy())
 				{
-					foreach (var selItem in new ArrayList(treeView.InternalSelectedItems))
+					var e2 = new PreviewSelectionChangedEventArgs(false, selItem);
+					OnPreviewSelectionChanged(e2);
+					if (e2.CancelAll)
 					{
-						var e2 = new PreviewSelectionChangedEventArgs(false, selItem);
-						OnPreviewSelectionChanged(e2);
-						if (e2.CancelAll)
-						{
-							FocusHelper.Focus(item);
-							lastShiftRoot = item.DataContext;
-							return false;
-						}
-						if (!e2.CancelThis)
-						{
-							treeView.UnSelectItem(selItem);
-						}
+						FocusHelper.Focus(item);
+						lastShiftRoot = item.DataContext;
+						return false;
+					}
+					if (!e2.CancelThis)
+					{
+						treeView.UnSelectItem(selItem);
 					}
 				}
 				

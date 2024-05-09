@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -138,7 +139,7 @@ namespace System.Windows.Controls
             set { SetValue(SelectedItemsProperty, value); }
         }
         
-        internal IList InternalSelectedItems
+        private IList InternalSelectedItems
         {
             get { return (IList)GetValue(InternalSelectedItemsImplProperty); }
         }
@@ -659,6 +660,16 @@ namespace System.Windows.Controls
             {
                 SelectItem(validItem);
             }
+        }
+
+        internal int GetSelectedItemsCount()
+        {
+            return InternalSelectedItems.Count;
+        }
+        
+        internal List<object> GetInternalSelectedItemsCopy()
+        {
+            return InternalSelectedItems.Cast<object>().ToList();
         }
         
         private void SyncSelectedInfoWhileUpdatingSelectedItem()
