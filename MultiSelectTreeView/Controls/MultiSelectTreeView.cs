@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Automation.Peers;
 using System.Windows.Helpers;
 using System.Windows.Input;
+using System.Windows.Interfaces;
 using System.Windows.Media;
 
 namespace System.Windows.Controls
@@ -54,20 +55,7 @@ namespace System.Windows.Controls
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            var treeViewItems = RecursiveTreeViewItemEnumerable(this, true);
-            foreach (var treeViewItem in treeViewItems)
-            {
-                var item = treeViewItem.DataContext;
-                if (item == null)
-                {
-                    continue;
-                }
-
-                if (IsItemSelected(item))
-                {
-                    treeViewItem.IsSelected = true;
-                }
-            }
+            SynchronizeSelectedItemState();
         }
 
         public static DependencyProperty AllowEditItemsProperty = DependencyProperty.Register(
@@ -631,6 +619,30 @@ namespace System.Windows.Controls
         }
 
         internal IEnumerable<object> GetAllItems()
+        {
+            var itemsSourceQueue = new Queue<IEnumerable>();
+            itemsSourceQueue.Enqueue(Items);
+            while (itemsSourceQueue.Peek() != null)
+            {
+                var items = itemsSourceQueue.Dequeue();
+                foreach (var item in items)
+                {
+                    yield return item;
+                    if (!(item is IAutoBindableModel autoBindableModel))
+                    {
+                        continue;
+                    }
+
+                    if (autoBindableModel.Children != null)
+                    {
+                        itemsSourceQueue.Enqueue(autoBindableModel.Children);
+                    }
+                }
+            }
+        }
+
+
+        internal IEnumerable<object> GetAllItemsByTreeViewItem()
         {
             return RecursiveTreeViewItemEnumerable(this, true).Select(x => x.DataContext);
         }
