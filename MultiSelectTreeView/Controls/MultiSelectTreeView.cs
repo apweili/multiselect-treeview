@@ -628,7 +628,8 @@ namespace System.Windows.Controls
                 foreach (var item in items)
                 {
                     yield return item;
-                    if (!(item is IAutoBindableModel autoBindableModel))
+                    var autoBindableModel = item as IAutoBindableModel;
+                    if (autoBindableModel == null)
                     {
                         continue;
                     }
