@@ -19,8 +19,9 @@
         <TextBlock DockPanel.Dock="Top" Style="{StaticResource FirstCaption}">The TreeView control</TextBlock>
         <controls:MultiSelectTreeView
             Name="TheSpecialTreeView"
-            ItemsSource="{Binding Children}"
+            ItemsSource="{Binding Items}"
             SelectedItems="{Binding SelectedItems}"
+            DisplayMemberPath="Name"
             PreviewSelectionChanged="TheSpecialTreeView_PreviewSelectionChanged">
             <controls:MultiSelectTreeView.ContextMenu>
                 <ContextMenu>
@@ -30,108 +31,6 @@
                     <MenuItem Header="Delete" Click="DeleteMenuItem_Click" />
                 </ContextMenu>
             </controls:MultiSelectTreeView.ContextMenu>
-
-            <controls:MultiSelectTreeView.ItemContainerStyle>
-                <Style TargetType="{x:Type controls:MultiSelectTreeViewItem}">
-                    <!--
-						Here the TreeViewItem's properties are connected with the ViewModel class.
-						Basically you would make all MultiSelectTreeViewItem properties accessible
-						in the view model class that you possibly want to get or set in order to
-						determine or manipulate the view from the view model class.
-						-->
-                    <Setter Property="DisplayName" Value="{Binding DisplayName, Mode=TwoWay}" />
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    <Setter Property="IsEnabled" Value="{Binding IsEnabled, Mode=TwoWay}" />
-                    <Setter Property="IsVisible" Value="{Binding IsVisible, Mode=TwoWay}" />
-                    <Setter Property="IsEditable" Value="{Binding IsEditable, Mode=TwoWay}" />
-                    <Setter Property="IsEditing" Value="{Binding IsEditing, Mode=TwoWay}" />
-                    <Setter Property="Remarks" Value="{Binding Remarks, Mode=TwoWay}" />
-                    <!--
-						The ContentTemplateEdit property defines a DataTemplate that is applied
-						instead of the normal viewing DataTemplate (definition below) when the item
-						is in edit mode. If you do not need editing functionality or the default
-						template is good for you, then you can omit this Setter.
-						-->
-                    <Setter Property="ContentTemplateEdit">
-                        <Setter.Value>
-                            <DataTemplate>
-                                <!--
-									NOTE:
-									Instead of using a ContentControl which selects an editor template,
-									you could directly define an editor template here which then applies
-									to all item data types.
-									EXAMPLE:
-									<StackPanel Orientation="Horizontal">
-										<Border Background="YellowGreen" CornerRadius="3" Width="16" Height="16"/>
-										<Controls:EditTextBox
-											Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-											Padding="2,0,0,0"/>
-									</StackPanel>
-									-->
-                                <ContentControl
-                                    Content="{Binding}"/>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <!--
-						The RemarksTemplate property defines a DataTemplate that is applied instead
-						of the normal viewing DataTemplate. If you do not need remarks
-						functionality or the default template is good for you, then you can omit
-						this Setter.
-						-->
-                    <Setter Property="RemarksTemplate">
-                        <Setter.Value>
-                            <DataTemplate>
-                                <TextBlock VerticalAlignment="Center" Margin="3,0,0,0" Foreground="#a0ff0000"
-                                           FontStyle="Italic" Text="{Binding}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding}" Value="{x:Null}">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding}" Value="">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </controls:MultiSelectTreeView.ItemContainerStyle>
-
-            <controls:MultiSelectTreeView.Resources>
-                <!--
-					Here the general item appearance is defined, for the ViewModel.TreeItemViewModel type
-					-->
-                <HierarchicalDataTemplate DataType="{x:Type vm:TreeItemViewModel}" ItemsSource="{Binding Children}">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Background="YellowGreen" CornerRadius="3" Width="16" Height="16"
-                                SnapsToDevicePixels="True" />
-
-                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Padding="4,0,2,0" />
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-
-                <!--
-					This is another item appearance for the ViewModel.ColorItemViewModel type
-					-->
-                <HierarchicalDataTemplate DataType="{x:Type vm:ColorItemViewModel}" ItemsSource="{Binding Children}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Colour:" Margin="1,0,0,0" />
-                        <TextBlock
-                            Text="{Binding DisplayName}"
-                            Background="{Binding BackgroundBrush}"
-                            Foreground="{Binding ForegroundBrush}"
-                            Padding="3,0"
-                            Margin="6,0,0,0" />
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </controls:MultiSelectTreeView.Resources>
         </controls:MultiSelectTreeView>
     </DockPanel>
 </Window>

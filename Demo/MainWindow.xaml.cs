@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interfaces;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -20,6 +21,49 @@ namespace Demo
 {
     public partial class MainWindow : Window
     {
+
+        private class MyDataContext
+        {
+            public MyDataContext()
+            {
+                List<FamilyProfiles> items;
+                InitializeItems(out items);
+                Items = items;
+            }
+            public List<FamilyProfiles> Items { get; set; }
+            public List<FamilyProfiles> SelectedItems { get; set; } = new List<FamilyProfiles>();
+
+            private void InitializeItems(out List<FamilyProfiles> initialData)
+            {
+                initialData = new List<FamilyProfiles>();
+                var familyOne = new FamilyProfiles()
+                {
+                    Name = "Li",
+                    Children = new List<IAutoBindableModel>
+                    {
+                        new FamilyProfiles()
+                        {
+                            Name = "Wei"
+                        }
+                    }
+                };
+                
+                var familyTwo = new FamilyProfiles()
+                {
+                    Name = "Zha",
+                    Children = new List<IAutoBindableModel>
+                    {
+                        new FamilyProfiles()
+                        {
+                            Name = "June"
+                        }
+                    }
+                }; 
+                initialData.Add(familyOne);
+                initialData.Add(familyTwo);
+            }
+        }
+        
         private TreeItemViewModel _nodeToAdd;
         private TreeItemViewModel _rootNode;
         private TreeItemViewModel _node1;
@@ -70,7 +114,8 @@ namespace Demo
             // Use the root node as the window's DataContext to allow data binding. The TreeView
             // will use the Children property of the DataContext as list of root tree items. This
             // property happens to be the same as each item DataTemplate uses to find its subitems.
-            DataContext = rootNode;
+            var myDataContext = new MyDataContext();
+            DataContext = myDataContext;
 
             // Preset some node states
             // node1.IsSelected = true;
