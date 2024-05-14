@@ -6,6 +6,5 @@ namespace System.Windows.Interfaces
     {
         IEnumerable<IAutoBindableModel> Children { get; set; }
         bool IsExpanded { get; set; }
-        object Header { get; set; }
     }
 }

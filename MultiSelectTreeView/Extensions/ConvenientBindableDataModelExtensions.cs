@@ -19,7 +19,7 @@ namespace System.Windows.Extensions
         {
             var bindingForHeader = new Binding
             {
-                Path = new PropertyPath(nameof(IAutoBindableModel.Header))
+                Source = autoBindableModel
             };
             container.SetBinding(TreeViewItem.IsExpandedProperty, bindingForHeader); 
         }

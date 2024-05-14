@@ -4,7 +4,7 @@ using System.Windows.Interfaces;
 
 namespace System.Windows.Helpers
 {
-    internal class AutoBindHelper
+    internal static class AutoBindHelper
     {
         public static bool TryToAutoBindObject(DependencyObject container, object viewModel)
         {
