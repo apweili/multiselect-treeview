@@ -114,5 +114,23 @@ namespace System.Windows.Controls
             get { return GetValue(SelectionBoxItemProperty); }
             private set { SetValue(SelectionBoxItemPropertyKey, value); }
         }
+
+        public static readonly DependencyProperty IsEditableProperty =
+            ComboBox.IsEditableProperty.AddOwner(typeof(MultiSelectTreeView),
+                new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnIsEditableChanged)));
+
+        /// <summary>
+        ///     True if this ComboBox is editable.
+        /// </summary>
+        /// <value></value>
+        public bool IsEditable
+        {
+            get { return (bool)GetValue(IsEditableProperty); }
+            set { SetValue(IsEditableProperty, value); }
+        }
+
+        private static void OnIsEditableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+        }
     }
 }
