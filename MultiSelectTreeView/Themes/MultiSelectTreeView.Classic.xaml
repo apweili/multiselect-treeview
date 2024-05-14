@@ -316,52 +316,40 @@
                             Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
                             BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}"
                             BorderThickness="1">
-                        <Border Name="Bd"
-                                SnapsToDevicePixels="True">
-                            <Border BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
-                                    BorderThickness="0,0,1,1">
-                                <Border BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"
-                                        BorderThickness="1,1,0,0">
-                                    <Border BorderBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                            BorderThickness="0,0,1,1">
-                                        <Border
-                                            BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"
-                                            BorderThickness="1,1,0,0">
-                                            <ScrollViewer Name="scrollViewer"
-                                                          CanContentScroll="True"
-                                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                                          Background="{TemplateBinding Panel.Background}"
-                                                          Padding="{TemplateBinding Control.Padding}"
-                                                          SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
-                                                          Focusable="False">
-                                                <ScrollViewer.Resources>
-                                                    <Style TargetType="ScrollBar">
-                                                        <!-- Fix that improper scrollbar handle drawing common in WPF -->
-                                                        <Setter Property="UseLayoutRounding" Value="True" />
-                                                    </Style>
-                                                </ScrollViewer.Resources>
-                                                <Grid Margin="0,0,0,1" RenderOptions.ClearTypeHint="Enabled">
-                                                    <!-- Compensate bottom margin -1 for last item -->
-                                                    <ItemsPresenter Name="content"
-                                                                    KeyboardNavigation.DirectionalNavigation="Contained"
-                                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                                    <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0"
-                                                            VerticalAlignment="Top"
-                                                            Width="0">
-                                                        <Border Name="selectionBorder"
-                                                                BorderBrush="{Binding BorderBrushSelectionRectangle, RelativeSource={RelativeSource AncestorType=controls:MultiSelectTreeView}}"
-                                                                Background="{Binding BackgroundSelectionRectangle, RelativeSource={RelativeSource AncestorType=controls:MultiSelectTreeView}}"
-                                                                BorderThickness="1"
-                                                                VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                                Visibility="Collapsed" />
-                                                    </Canvas>
-                                                </Grid>
-                                            </ScrollViewer>
-                                        </Border>
-                                    </Border>
-                                </Border>
-                            </Border>
+                        <Border
+                            BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"
+                            BorderThickness="1,1,0,0">
+                            <ScrollViewer Name="scrollViewer"
+                                          CanContentScroll="True"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                          Background="{TemplateBinding Panel.Background}"
+                                          Padding="{TemplateBinding Control.Padding}"
+                                          SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
+                                          Focusable="False">
+                                <ScrollViewer.Resources>
+                                    <Style TargetType="ScrollBar">
+                                        <!-- Fix that improper scrollbar handle drawing common in WPF -->
+                                        <Setter Property="UseLayoutRounding" Value="True" />
+                                    </Style>
+                                </ScrollViewer.Resources>
+                                <Grid Margin="0,0,0,1" RenderOptions.ClearTypeHint="Enabled">
+                                    <!-- Compensate bottom margin -1 for last item -->
+                                    <ItemsPresenter Name="content"
+                                                    KeyboardNavigation.DirectionalNavigation="Contained"
+                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                    <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0"
+                                            VerticalAlignment="Top"
+                                            Width="0">
+                                        <Border Name="selectionBorder"
+                                                BorderBrush="{Binding BorderBrushSelectionRectangle, RelativeSource={RelativeSource AncestorType=controls:MultiSelectTreeView}}"
+                                                Background="{Binding BackgroundSelectionRectangle, RelativeSource={RelativeSource AncestorType=controls:MultiSelectTreeView}}"
+                                                BorderThickness="0"
+                                                VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                Visibility="Collapsed" />
+                                    </Canvas>
+                                </Grid>
+                            </ScrollViewer>
                         </Border>
                     </Border>
                 </theme:SystemDropShadowChrome>
