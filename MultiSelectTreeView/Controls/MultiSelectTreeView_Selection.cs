@@ -689,7 +689,7 @@ namespace System.Windows.Controls
             }
 
             SelectedItem = selectedItem;
-            SelectionBoxItem = selectedItem;
+            UpdateSelectionBoxItem();
             if (selectedItem != null)
             {
                 SelectedIndex = Items.IndexOf(selectedItem);
@@ -701,6 +701,15 @@ namespace System.Windows.Controls
                 SelectedIndex = -1;
                 SelectedValue = null;
             }
+        }
+
+        private void UpdateSelectionBoxItem()
+        {
+            // var internalSelectedItems = InternalSelectedItems;
+            // var selectedItem = SelectedItem;
+            // var itemTemplate = ItemTemplate;
+            // var stringFormat = ItemStringFormat;
+            SelectionBoxItem = InternalSelectedItems.Cast<object>().ToList();
         }
     }
 }
