@@ -503,7 +503,7 @@ namespace System.Windows.Controls
                     throw new InvalidOperationException();
             }
 
-            SyncSelectedInfoWhileUpdatingSelectedItem();
+            SyncSelectedInfoAfterUpdateSelectedItems();
             var selectionChangedEventArgs =
                 new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
             OnSelectionChanged(selectionChangedEventArgs);
@@ -671,7 +671,7 @@ namespace System.Windows.Controls
             return InternalSelectedItems.Cast<object>().ToList();
         }
         
-        private void SyncSelectedInfoWhileUpdatingSelectedItem()
+        private void SyncSelectedInfoAfterUpdateSelectedItems()
         {
             if (!IsInitialized)
             {
@@ -689,6 +689,7 @@ namespace System.Windows.Controls
             }
 
             SelectedItem = selectedItem;
+            SelectionBoxItem = selectedItem;
             if (selectedItem != null)
             {
                 SelectedIndex = Items.IndexOf(selectedItem);
