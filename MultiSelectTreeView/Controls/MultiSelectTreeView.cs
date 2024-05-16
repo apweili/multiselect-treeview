@@ -430,7 +430,6 @@ namespace System.Windows.Controls
         private static void OnSelectionModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MultiSelectTreeView treeView = (MultiSelectTreeView)d;
-
             if (treeView.Selection != null)
             {
                 treeView.Selection.PreviewSelectionChanged -= treeView.PreviewSelectionChangedHandler;
