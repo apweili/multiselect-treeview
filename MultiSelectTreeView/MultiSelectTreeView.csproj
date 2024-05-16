@@ -77,6 +77,7 @@
     <Compile Include="Controls\ListExtensions.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\MultiSelectTreeView_ComboBox.cs" />
+    <Compile Include="Controls\MultiSelectTreeView_Layout.cs" />
     <Compile Include="Controls\MultiSelectTreeView_Selection.cs" />
     <Compile Include="Controls\SelectionMultiple.cs" />
     <Compile Include="Controls\SelectionSingle.cs" />
@@ -152,7 +153,8 @@
     <Compile Include="Extensions\ConvenientBindableDataModelExtensions.cs" />
     <Compile Include="Helpers\AutoBindHelper.cs" />
     <Compile Include="Helpers\PropertyPathHelper.cs" />
-    <Compile Include="Interfaces\IAutoBindableModel.cs" />
+    <Compile Include="Interfaces\IAutoBindExpandableModel.cs" />
+    <Compile Include="Interfaces\IAutoBindImageSourceModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

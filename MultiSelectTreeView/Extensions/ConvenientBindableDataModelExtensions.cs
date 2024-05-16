@@ -6,39 +6,41 @@ namespace System.Windows.Extensions
 {
     internal static class ConvenientBindableDataModelExtensions
     {
-        public static void BindToContainer(this IAutoBindableModel autoBindableModel,
+        public static void BindExpandableToContainer(this IAutoBindExpandableModel autoBindExpandableModel,
             MultiSelectTreeViewItem container)
         {
-            BindHeader(autoBindableModel, container);
-            SetItemsSource(autoBindableModel, container);
-            BindIsExpanded(autoBindableModel, container);
+            SetItemsSource(autoBindExpandableModel, container);
+            BindIsExpanded(autoBindExpandableModel, container);
+        }
+        
+        public static void BindImageSourceToContainer(this IAutoBindImageSourceModel modelWithImageSource,
+            MultiSelectTreeViewItem container)
+        {
+            BindImageSource(modelWithImageSource, container);
         }
 
-        private static void BindHeader(IAutoBindableModel autoBindableModel,
+        private static void SetItemsSource(IAutoBindExpandableModel autoBindExpandableModel,
             MultiSelectTreeViewItem container)
         {
-            var bindingForHeader = new Binding
-            {
-                Source = autoBindableModel
-            };
-            container.SetBinding(TreeViewItem.IsExpandedProperty, bindingForHeader); 
+            container.ItemsSource = autoBindExpandableModel.Children; 
         }
         
-        private static void SetItemsSource(IAutoBindableModel autoBindableModel,
-            MultiSelectTreeViewItem container)
-        {
-            container.ItemsSource = autoBindableModel.Children; 
-        }
-        
-        private static void BindIsExpanded(IAutoBindableModel autoBindableModel,
+        private static void BindIsExpanded(IAutoBindExpandableModel autoBindExpandableModel,
             MultiSelectTreeViewItem container)
         {
             var bindingForExpand = new Binding
             {
-                Path = new PropertyPath(nameof(IAutoBindableModel.IsExpanded)),
+                Source = autoBindExpandableModel,
+                Path = new PropertyPath(nameof(IAutoBindExpandableModel.IsExpanded)),
                 Mode = BindingMode.TwoWay
             };
-            container.SetBinding(TreeViewItem.IsExpandedProperty, bindingForExpand);
+            container.SetBinding(MultiSelectTreeViewItem.IsExpandedProperty, bindingForExpand);
+        }
+        
+        private static void BindImageSource(IAutoBindImageSourceModel modelWithImageSource,
+            MultiSelectTreeViewItem container)
+        {
+            container.Remarks = modelWithImageSource.Source;
         }
     }
 }

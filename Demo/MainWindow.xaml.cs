@@ -39,7 +39,7 @@ namespace Demo
                 var familyOne = new FamilyProfiles()
                 {
                     Name = "Li",
-                    Children = new List<IAutoBindableModel>
+                    Children = new List<IAutoBindExpandableModel>
                     {
                         new FamilyProfiles()
                         {
@@ -51,7 +51,7 @@ namespace Demo
                 var familyTwo = new FamilyProfiles()
                 {
                     Name = "Zha",
-                    Children = new List<IAutoBindableModel>
+                    Children = new List<IAutoBindExpandableModel>
                     {
                         new FamilyProfiles()
                         {

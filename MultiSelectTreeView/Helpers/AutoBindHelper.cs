@@ -6,22 +6,25 @@ namespace System.Windows.Helpers
 {
     internal static class AutoBindHelper
     {
-        public static bool TryToAutoBindObject(DependencyObject container, object viewModel)
+        public static void TryToAutoBindObject(DependencyObject container, object viewModel)
         {
             var itemContainerControl = container as MultiSelectTreeViewItem;
             if (itemContainerControl == null)
             {
-                return false;
+                return;
             }
-            
-            var autoBindableModel = viewModel as IAutoBindableModel;
-            if (autoBindableModel == null)
+
+            var autoBindableModel = viewModel as IAutoBindExpandableModel;
+            if (autoBindableModel != null)
             {
-                return false;
+                autoBindableModel.BindExpandableToContainer(itemContainerControl);
             }
-            
-            autoBindableModel.BindToContainer(itemContainerControl);
-            return true;
+
+            var modelWithImageSource = viewModel as IAutoBindImageSourceModel;
+            if (modelWithImageSource != null)
+            {
+                modelWithImageSource.BindImageSourceToContainer(itemContainerControl);
+            }
         }
     }
 }

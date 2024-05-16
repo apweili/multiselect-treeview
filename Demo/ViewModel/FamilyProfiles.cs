@@ -3,10 +3,11 @@ using System.Windows.Interfaces;
 
 namespace Demo.ViewModel
 {
-    public class FamilyProfiles : IAutoBindableModel
+    public class FamilyProfiles : IAutoBindExpandableModel, IAutoBindImageSourceModel
     {
         public string Name { get; set; }
-        public IEnumerable<IAutoBindableModel> Children { get; set; }
+        public IEnumerable<IAutoBindExpandableModel> Children { get; set; }
         public bool IsExpanded { get; set; }
+        public object Source { get; set; } = "C:\\Users\\lw\\Desktop\\20120628172839.jpg";
     }
 }

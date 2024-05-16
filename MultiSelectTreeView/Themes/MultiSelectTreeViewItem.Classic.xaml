@@ -23,20 +23,17 @@
 		<Setter Property="RemarksTemplate">
 			<Setter.Value>
 				<DataTemplate>
-					<TextBlock VerticalAlignment="Center" Margin="3,0,0,0" Text="{Binding}">
-						<TextBlock.Style>
-							<Style TargetType="TextBlock">
+					<Image Source="{Binding }">
+						<Image.Style>
+							<Style TargetType="Image">
 								<Style.Triggers>
-									<DataTrigger Binding="{Binding}" Value="{x:Null}">
-										<Setter Property="Visibility" Value="Collapsed"/>
-									</DataTrigger>
-									<DataTrigger Binding="{Binding}" Value="">
+									<DataTrigger Binding="{Binding }" Value="{x:Null}">
 										<Setter Property="Visibility" Value="Collapsed"/>
 									</DataTrigger>
 								</Style.Triggers>
 							</Style>
-						</TextBlock.Style>
-					</TextBlock>
+						</Image.Style>
+					</Image>
 				</DataTemplate>
 			</Setter.Value>
 		</Setter>
@@ -136,6 +133,10 @@
 
 							<!-- region Element grid -->
 							<StackPanel Grid.Column="1" Orientation="Horizontal">
+								<ContentPresenter
+									Content="{TemplateBinding Remarks}"
+									ContentTemplate="{TemplateBinding RemarksTemplate}"
+									SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"/>
 								<Grid Name="ElementGrid">
 									<Border
 										BorderThickness="{TemplateBinding Border.BorderThickness}"
@@ -160,11 +161,6 @@
 									<Rectangle StrokeDashArray="0.5 1.5" StrokeThickness="1" Stroke="Black" SnapsToDevicePixels="True" Margin="1,1,1,0"
 										Visibility="Hidden" Name="FocusRectangle" IsHitTestVisible="False"/>
 								</Grid>
-
-								<ContentPresenter
-									Content="{TemplateBinding Remarks}"
-									ContentTemplate="{TemplateBinding RemarksTemplate}"
-									SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"/>
 							</StackPanel>
 							<!-- endregion Element grid -->
 						</Grid>

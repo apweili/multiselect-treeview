@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows.Automation.Peers;
 using System.Windows.Helpers;
 using System.Windows.Input;
@@ -143,12 +144,17 @@ namespace System.Windows.Controls
 
         public static DependencyProperty RemarksProperty = DependencyProperty.Register(
             "Remarks",
-            typeof(string),
+            typeof(object),
             typeof(MultiSelectTreeViewItem));
 
         public static DependencyProperty RemarksTemplateProperty = DependencyProperty.Register(
             "RemarksTemplate",
             typeof(DataTemplate),
+            typeof(MultiSelectTreeViewItem));
+
+        public static DependencyProperty ImageSourceProperty = DependencyProperty.Register(
+            "ImageSource",
+            typeof(object),
             typeof(MultiSelectTreeViewItem));
 
         #endregion Others
@@ -311,9 +317,9 @@ namespace System.Windows.Controls
             set { SetValue(IsKeyboardModeProperty, value); }
         }
 
-        public string Remarks
+        public object Remarks
         {
-            get { return (string)GetValue(RemarksProperty); }
+            get { return GetValue(RemarksProperty); }
             set { SetValue(RemarksProperty, value); }
         }
 
@@ -321,6 +327,13 @@ namespace System.Windows.Controls
         {
             get { return (DataTemplate)GetValue(RemarksTemplateProperty); }
             set { SetValue(RemarksTemplateProperty, value); }
+        }
+
+        [TypeConverter(typeof(ImageSourceConverter))]
+        public object ImageSource
+        {
+            get { return GetValue(ImageSourceProperty); }
+            set { SetValue(ImageSourceProperty, value); }
         }
 
         #endregion Others
