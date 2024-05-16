@@ -1,8 +1,6 @@
-﻿using System.Reflection;
-
-namespace System.Windows.Helpers
+﻿namespace System.Windows.Helpers
 {
-    public class PropertyPathHelper
+    public static class PropertyPathHelper
     {
         public static object GetObjectByPropertyPath(object target, string path)
         {

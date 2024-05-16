@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\ThicknessLeftConverter.cs" />
+    <Compile Include="Converters\SelectionBoxItemValueConverter.cs" />
     <Compile Include="Extensions\ConvenientBindableDataModelExtensions.cs" />
     <Compile Include="Helpers\AutoBindHelper.cs" />
     <Compile Include="Helpers\PropertyPathHelper.cs" />

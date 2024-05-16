@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Windows.Controls.Primitives;
+using System.Windows.Converters;
+using System.Windows.Data;
 using System.Windows.Helpers;
 
 namespace System.Windows.Controls
@@ -137,7 +139,7 @@ namespace System.Windows.Controls
             get { return (IList)GetValue(SelectedItemsProperty); }
             set { SetValue(SelectedItemsProperty, value); }
         }
-        
+
         private IList InternalSelectedItems
         {
             get { return (IList)GetValue(InternalSelectedItemsImplProperty); }
@@ -267,7 +269,7 @@ namespace System.Windows.Controls
 
             return baseValue;
         }
-        
+
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
         {
             base.OnItemsSourceChanged(oldValue, newValue);
@@ -299,7 +301,7 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
+
             var treeView = (MultiSelectTreeView)d;
             if (treeView == null)
             {
@@ -423,8 +425,8 @@ namespace System.Windows.Controls
                 IsSyncInternalAndExternalSelectedItems = false;
             }
         }
-        
-         private void OnInternalSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+
+        private void OnInternalSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             try
             {
@@ -436,7 +438,6 @@ namespace System.Windows.Controls
             {
                 IsUpdatingSelectedItems = false;
             }
-            
         }
 
         // this eventhandler reacts on the firing control to, in order to update the own status
@@ -516,8 +517,8 @@ namespace System.Windows.Controls
                 SelectItemInSingleSelectionMode(item);
                 return;
             }
-            
-            SelectItemInMultiSelectionMode(item); 
+
+            SelectItemInMultiSelectionMode(item);
         }
 
         private void SelectItemByIndex(int index)
@@ -528,7 +529,7 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
+
             SelectItem(Items[index]);
         }
 
@@ -571,7 +572,7 @@ namespace System.Windows.Controls
             LastSelectedItem = lastSelectedItem;
             return true;
         }
-        
+
         private void SelectItemInMultiSelectionMode(object item)
         {
             if (IsUpdatingSelectedItems)
@@ -583,17 +584,17 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
+
             InternalSelectedItems.Add(item);
         }
-        
+
         private void SelectItemInSingleSelectionMode(object item)
         {
             if (IsUpdatingSelectedItems)
             {
                 return;
             }
- 
+
             InternalSelectedItems.Clear();
             InternalSelectedItems.Add(item);
         }
@@ -610,7 +611,7 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
+
             InternalSelectedItems.RemoveAt(index);
         }
 
@@ -665,19 +666,19 @@ namespace System.Windows.Controls
         {
             return InternalSelectedItems.Count;
         }
-        
+
         internal List<object> GetInternalSelectedItemsCopy()
         {
             return InternalSelectedItems.Cast<object>().ToList();
         }
-        
+
         private void SyncSelectedInfoAfterUpdateSelectedItems()
         {
             if (!IsInitialized)
             {
-                return;    
+                return;
             }
-            
+
             object selectedItem;
             if (InternalSelectedItems.Count == 0)
             {
@@ -685,7 +686,7 @@ namespace System.Windows.Controls
             }
             else
             {
-                selectedItem = InternalSelectedItems.Last(); 
+                selectedItem = InternalSelectedItems.Last();
             }
 
             SelectedItem = selectedItem;
@@ -694,7 +695,7 @@ namespace System.Windows.Controls
             {
                 SelectedIndex = Items.IndexOf(selectedItem);
                 SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem,
-                    SelectedValuePath); 
+                    SelectedValuePath);
             }
             else
             {
@@ -710,6 +711,35 @@ namespace System.Windows.Controls
             // var itemTemplate = ItemTemplate;
             // var stringFormat = ItemStringFormat;
             SelectionBoxItem = InternalSelectedItems.Cast<object>().ToList();
+            if (SelectionBoxItemDataTemplate == null)
+            {
+                SelectionBoxItemDataTemplate = CreateSelectionBoxItem();
+            }
+            
+            SelectionBoxItemTemplate = SelectionBoxItemDataTemplate;
+        }
+
+        protected override void OnDisplayMemberPathChanged(string oldDisplayMemberPath, string newDisplayMemberPath)
+        {
+            SelectionBoxItemDataTemplate = CreateSelectionBoxItem();
+            base.OnDisplayMemberPathChanged(oldDisplayMemberPath, newDisplayMemberPath);
+        }
+
+        private DataTemplate SelectionBoxItemDataTemplate { get; set; }
+
+        private DataTemplate CreateSelectionBoxItem()
+        {
+            var template = new DataTemplate();
+            var text = new FrameworkElementFactory(typeof(TextBlock));
+            var binding = new Binding
+            {
+                Converter = new SelectionBoxItemValueConverter(),
+                ConverterParameter = DisplayMemberPath
+            };
+            text.SetBinding(TextBlock.TextProperty, binding);
+            template.VisualTree = text;
+            template.Seal();
+            return template;
         }
     }
 }
