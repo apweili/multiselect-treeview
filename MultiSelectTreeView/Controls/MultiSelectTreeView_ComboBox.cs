@@ -95,7 +95,7 @@ namespace System.Windows.Controls
         private static readonly DependencyPropertyKey SelectionBoxItemPropertyKey =
             DependencyProperty.RegisterReadOnly("SelectionBoxItem", typeof(object), typeof(MultiSelectTreeView),
                 new FrameworkPropertyMetadata(string.Empty));
-
+        
         // This property is used as a Style Helper.
         // When the SelectedItem is a UIElement a VisualBrush is created and set to the Fill property
         // of a Rectangle. Then we set SelectionBoxItem to that rectangle.
@@ -113,6 +113,19 @@ namespace System.Windows.Controls
         {
             get { return GetValue(SelectionBoxItemProperty); }
             private set { SetValue(SelectionBoxItemPropertyKey, value); }
+        }
+        
+        private static readonly DependencyPropertyKey IsSelectionBoxItemIncludingRemarkPropertyKey =
+            DependencyProperty.RegisterReadOnly("IsSelectionBoxItemIncludingRemark", typeof(bool), typeof(MultiSelectTreeView),
+                new FrameworkPropertyMetadata(false));
+        
+        public static readonly DependencyProperty IsSelectionBoxItemIncludingRemarkProperty =
+            IsSelectionBoxItemIncludingRemarkPropertyKey.DependencyProperty;
+        
+        public bool IsSelectionBoxItemIncludingRemark
+        {
+            get { return (bool)GetValue(IsSelectionBoxItemIncludingRemarkProperty); }
+            private set { SetValue(IsSelectionBoxItemIncludingRemarkPropertyKey, value); }
         }
 
         /// <summary>

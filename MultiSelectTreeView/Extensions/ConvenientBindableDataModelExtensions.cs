@@ -40,7 +40,7 @@ namespace System.Windows.Extensions
         private static void BindImageSource(IAutoBindImageSourceModel modelWithImageSource,
             MultiSelectTreeViewItem container)
         {
-            container.Remarks = modelWithImageSource.Source;
+            container.Remarks = modelWithImageSource.ImageSource;
         }
     }
 }

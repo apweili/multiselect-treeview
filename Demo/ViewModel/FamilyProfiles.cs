@@ -8,6 +8,6 @@ namespace Demo.ViewModel
         public string Name { get; set; }
         public IEnumerable<IAutoBindExpandableModel> Children { get; set; }
         public bool IsExpanded { get; set; }
-        public object Source { get; set; } = "C:\\Users\\lw\\Desktop\\20120628172839.jpg";
+        public object ImageSource { get; set; } = "C:\\Users\\lw\\Desktop\\20120628172839.jpg";
     }
 }

@@ -12,13 +12,28 @@ namespace System.Windows.Converters
         {
             var selectedItems = value as List<object>;
             var displayMemberPath = parameter as string;
-            if (string.IsNullOrEmpty(displayMemberPath))
+            if (selectedItems != null)
             {
-                return string.Join(";", selectedItems.Select(item => item.ToString()));
+                if (string.IsNullOrEmpty(displayMemberPath))
+                {
+                    return string.Join(";", selectedItems.Select(item => item.ToString()));
+                }
+
+                return string.Join(";",
+                    selectedItems.Select(item => PropertyPathHelper.GetObjectByPropertyPath(item, displayMemberPath)));
             }
 
-            return string.Join(";",
-                selectedItems.Select(item => PropertyPathHelper.GetObjectByPropertyPath(item, displayMemberPath)));
+            if (value == null)
+            {
+                return string.Empty;
+            }
+
+            if (string.IsNullOrEmpty(displayMemberPath))
+            {
+                return value.ToString();
+            }
+
+            return PropertyPathHelper.GetObjectByPropertyPath(value, displayMemberPath);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

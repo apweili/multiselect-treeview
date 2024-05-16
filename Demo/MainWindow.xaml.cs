@@ -124,7 +124,7 @@ namespace Demo
             // _nodeToAdd = node132;
             // rootNode.SelectedItems.Add(node1);
             // rootNode.SelectedItems.Add(node2);
-            TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.MultiSelectEnabled;
+            TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.SingleSelectOnly;
 
             // Loaded += (sender, args) =>
             // {

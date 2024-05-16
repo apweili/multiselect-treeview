@@ -8,6 +8,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Converters;
 using System.Windows.Data;
 using System.Windows.Helpers;
+using System.Windows.Interfaces;
 
 namespace System.Windows.Controls
 {
@@ -710,13 +711,38 @@ namespace System.Windows.Controls
             // var selectedItem = SelectedItem;
             // var itemTemplate = ItemTemplate;
             // var stringFormat = ItemStringFormat;
-            SelectionBoxItem = InternalSelectedItems.Cast<object>().ToList();
+            var internalSelectedItems = InternalSelectedItems.Cast<object>().ToList();
+            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            {
+                
+                SelectionBoxItem = internalSelectedItems; 
+            }
+            else
+            {
+                SelectionBoxItem = internalSelectedItems.FirstOrDefault();
+                if (IsSelectionBoxItemIncludeImageSource(SelectionBoxItem))
+                {
+                    IsSelectionBoxItemIncludingRemark = true; 
+                }
+            }
+           
             if (SelectionBoxItemDataTemplate == null)
             {
                 SelectionBoxItemDataTemplate = CreateSelectionBoxItem();
             }
             
             SelectionBoxItemTemplate = SelectionBoxItemDataTemplate;
+        }
+
+        private bool IsSelectionBoxItemIncludeImageSource(object selectionBoxItem)
+        {
+            if (selectionBoxItem == null)
+            {
+                return false;
+            }
+            
+            return selectionBoxItem is IAutoBindImageSourceModel &&
+                   ((IAutoBindImageSourceModel)selectionBoxItem).ImageSource != null;
         }
 
         protected override void OnDisplayMemberPathChanged(string oldDisplayMemberPath, string newDisplayMemberPath)

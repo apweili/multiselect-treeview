@@ -2,6 +2,6 @@
 {
     public interface IAutoBindImageSourceModel
     {
-        object Source { get; set; }
+        object ImageSource { get; set; }
     }
 }
