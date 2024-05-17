@@ -25,7 +25,7 @@
             SelectedItems="{Binding SelectedItems}"
             DisplayMemberPath="Name"
             SelectionMode="{Binding Mode}"
-            PreviewSelectionChanged="TheSpecialTreeView_PreviewSelectionChanged">
+            SelectItemByCheckBox = "True">
             <controls:MultiSelectTreeView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Expand" Click="ExpandMenuItem_Click" />

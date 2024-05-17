@@ -149,6 +149,24 @@ namespace System.Windows.Controls
         /// <summary>
         ///     SelectedValuePath DependencyProperty
         /// </summary>
+        public static readonly DependencyProperty SelectItemByCheckBoxProperty =
+            DependencyProperty.RegisterAttached("SelectItemByCheckBox", typeof(bool), typeof(MultiSelectTreeView),
+                new FrameworkPropertyMetadata(false, propertyChangedCallback:OnSelectItemByCheckBoxChanged));
+
+        private static void OnSelectItemByCheckBoxChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            
+        }
+
+        public bool SelectItemByCheckBox
+        {
+            get { return (bool)GetValue(SelectItemByCheckBoxProperty); }
+            set { SetValue(SelectItemByCheckBoxProperty, value); }
+        }
+
+        /// <summary>
+        ///     SelectedValuePath DependencyProperty
+        /// </summary>
         public static readonly DependencyProperty SelectedValuePathProperty =
             Selector.SelectedValuePathProperty.AddOwner
             (
@@ -714,23 +732,22 @@ namespace System.Windows.Controls
             var internalSelectedItems = InternalSelectedItems.Cast<object>().ToList();
             if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
-                
-                SelectionBoxItem = internalSelectedItems; 
+                SelectionBoxItem = internalSelectedItems;
             }
             else
             {
                 SelectionBoxItem = internalSelectedItems.FirstOrDefault();
                 if (IsSelectionBoxItemIncludeImageSource(SelectionBoxItem))
                 {
-                    IsSelectionBoxItemIncludingRemark = true; 
+                    IsSelectionBoxItemIncludingRemark = true;
                 }
             }
-           
+
             if (SelectionBoxItemDataTemplate == null)
             {
                 SelectionBoxItemDataTemplate = CreateSelectionBoxItem();
             }
-            
+
             SelectionBoxItemTemplate = SelectionBoxItemDataTemplate;
         }
 
@@ -740,7 +757,7 @@ namespace System.Windows.Controls
             {
                 return false;
             }
-            
+
             return selectionBoxItem is IAutoBindImageSourceModel &&
                    ((IAutoBindImageSourceModel)selectionBoxItem).ImageSource != null;
         }

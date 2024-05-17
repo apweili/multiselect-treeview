@@ -515,6 +515,7 @@ namespace System.Windows.Controls
             base.PrepareContainerForItemOverride(element, item);
             ((ItemsControl)element).DisplayMemberPath = DisplayMemberPath;
             AutoBindHelper.TryToAutoBindObject(element, item);
+            element.SetValue(MultiSelectTreeView.SelectItemByCheckBoxProperty, ParentTreeView.SelectItemByCheckBox);
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item)
@@ -757,6 +758,8 @@ namespace System.Windows.Controls
             e.RoutedEvent = Mouse.MouseDownEvent;
             OnMouseDown(e);
         }
+
+        internal bool SelectItemByCheckBox => ParentTreeView.SelectItemByCheckBox;
 
         #endregion Internal methods
     }

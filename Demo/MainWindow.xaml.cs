@@ -76,7 +76,7 @@ namespace Demo
                                 {
                                     new FamilyProfiles()
                                     {
-                                        Name = "Mei"
+                                        Name = "Meieeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
                                     }
                                 }
                             }

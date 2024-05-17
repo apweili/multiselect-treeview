@@ -113,6 +113,7 @@
                         <ToggleButton x:Name="Expander" ClickMode="Press"
                                       IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                       Style="{StaticResource ExpandCollapseToggleStyle}" />
+                        <CheckBox x:Name="SelectionCheckBox" Grid.Row="0" Grid.Column="0" Focusable="False" Visibility="Collapsed"/>
                         <StackPanel  x:Name="ContentStackPanel" Grid.Column="1" Orientation="Horizontal">
                             <ContentPresenter
                                 Content="{TemplateBinding Remarks}"
@@ -156,6 +157,14 @@
                             <Setter Property="Foreground"
                                     Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
                         </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Visibility" TargetName="SelectionCheckBox"
+                                    Value="Visible" />
+                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

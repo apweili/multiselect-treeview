@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Automation.Peers;
+using System.Windows.Controls.Primitives;
 using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -179,7 +180,7 @@ namespace System.Windows.Controls
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-
+            _popup = (Popup)GetTemplateChild(ContentPopupName);
             Selection.ApplyTemplate();
         }
 
@@ -412,6 +413,7 @@ namespace System.Windows.Controls
         {
             base.PrepareContainerForItemOverride(element, item);
             ((ItemsControl)element).DisplayMemberPath = DisplayMemberPath;
+            element.SetValue(MultiSelectTreeView.SelectItemByCheckBoxProperty, SelectItemByCheckBox);
             AutoBindHelper.TryToAutoBindObject(element, item);
         }
 
@@ -763,5 +765,8 @@ namespace System.Windows.Controls
         }
 
         #endregion
+
+        private Popup _popup;
+        private const string ContentPopupName = "PART_Popup";
     }
 }
