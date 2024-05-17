@@ -466,7 +466,7 @@ namespace System.Windows.Controls
                 }
             }
 
-            if (e.Property.Name == "IsVisible")
+            if (e.Property.Name == "IsVisible" && ParentTreeView.IsDropDownOpen)
             {
                 // Deselect invisible item and its children
                 // (If one resists, don't hide)

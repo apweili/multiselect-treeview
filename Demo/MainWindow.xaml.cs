@@ -34,6 +34,7 @@ namespace Demo
             public List<FamilyProfiles> Items { get; set; }
             public List<FamilyProfiles> SelectedItems { get; set; } = new List<FamilyProfiles>();
 
+            public TreeViewSelectionMode Mode { get; set; } = TreeViewSelectionMode.SingleSelectOnly;
             private void InitializeItems(out List<FamilyProfiles> initialData)
             {
                 initialData = new List<FamilyProfiles>();

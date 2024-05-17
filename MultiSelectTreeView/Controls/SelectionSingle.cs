@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 
@@ -27,13 +26,15 @@ namespace System.Windows.Controls
 		
 		public bool Select(MultiSelectTreeViewItem item)
 		{
-			var selectedItem = treeView.SelectedItem;
-			if (selectedItem != null)
-			{
-				// Requested to select the single already-selected item. Don't change the selection.
-				FocusHelper.Focus(item, true);
-				return true;
-			}
+			// not understrand this code
+			
+			// var selectedItem = treeView.SelectedItem;
+			// if (selectedItem != null)
+			// {
+			// 	// Requested to select the single already-selected item. Don't change the selection.
+			// 	FocusHelper.Focus(item, true);
+			// 	return true;
+			// }
 
 			return SelectCore(item);
 		}

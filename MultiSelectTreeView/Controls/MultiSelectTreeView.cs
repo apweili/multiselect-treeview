@@ -7,7 +7,6 @@ using System.Linq;
 using System.Windows.Automation.Peers;
 using System.Windows.Helpers;
 using System.Windows.Input;
-using System.Windows.Interfaces;
 using System.Windows.Media;
 using System.Windows.Models;
 
@@ -67,7 +66,7 @@ namespace System.Windows.Controls
 
         public static readonly DependencyProperty SelectionModeProperty = DependencyProperty.Register(
             "SelectionMode", typeof(TreeViewSelectionMode), typeof(MultiSelectTreeView),
-            new FrameworkPropertyMetadata(default(TreeViewSelectionMode), FrameworkPropertyMetadataOptions.None,
+            new FrameworkPropertyMetadata(TreeViewSelectionMode.MultiSelectEnabled, FrameworkPropertyMetadataOptions.None,
                 OnSelectionModeChanged));
 
         #endregion
@@ -85,8 +84,6 @@ namespace System.Windows.Controls
             var internalSelectedItems = new ObservableCollection<object>();
             internalSelectedItems.CollectionChanged += OnInternalSelectedItemsChanged;
             SetValue(InternalSelectedItemsPropertyKey, internalSelectedItems);
-            Selection = new SelectionMultiple(this);
-            Selection.PreviewSelectionChanged += PreviewSelectionChangedHandler;
         }
 
         #endregion
