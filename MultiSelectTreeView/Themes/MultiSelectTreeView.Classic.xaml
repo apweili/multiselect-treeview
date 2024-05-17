@@ -93,8 +93,7 @@
                             <Path x:Name="arrow"
                                   Data="F1 M 0,0 L 2.667,2.66665 L 5.3334,0 L 5.3334,-1.78168 L 2.6667,0.88501 L0,-1.78168 L0,0 Z"
                                   Fill="{StaticResource MultiSelectTreeView.Static.Glyph}" HorizontalAlignment="Center"
-                                  Margin="0"
-                                  VerticalAlignment="Center" />
+                                  Margin="0" VerticalAlignment="Center" />
                         </Border>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -244,7 +243,7 @@
                             Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
                             BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}"
                             BorderThickness="1">
-                        <ScrollViewer x:Name="scrollViewer">
+                        <ScrollViewer x:Name="DropDownScrollViewer">
                             <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
                                 <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0" VerticalAlignment="Top"
                                         Width="0">
@@ -296,13 +295,23 @@
                 </MultiTrigger.Conditions>
                 <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
             </MultiTrigger>
+            <Trigger Property="ScrollViewer.CanContentScroll" SourceName="DropDownScrollViewer" Value="false">
+                <Setter Property="Canvas.Top" TargetName="opaqueRect"
+                        Value="{Binding VerticalOffset, ElementName=DropDownScrollViewer}" />
+                <Setter Property="Canvas.Left" TargetName="opaqueRect"
+                        Value="{Binding HorizontalOffset, ElementName=DropDownScrollViewer}" />
+            </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
     <ControlTemplate x:Key="MultiSelectTreeViewTemplate" TargetType="{x:Type controls:MultiSelectTreeView}">
         <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
+            <Grid.Resources>
+                <PopupAnimation x:Key="__XSTATIC_NAME_SystemParameters.MultiSelectTreeViewPopupAnimationKey" />
+            </Grid.Resources>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition MinWidth="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" Width="0"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition MinWidth="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"
+                                  Width="0" />
             </Grid.ColumnDefinitions>
             <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2"
                    IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource Mode=TemplatedParent}}"
@@ -315,41 +324,20 @@
                             Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
                             BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}"
                             BorderThickness="1">
-                        <Border
-                            BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"
-                            BorderThickness="1,1,0,0">
-                            <ScrollViewer Name="scrollViewer"
-                                          CanContentScroll="True"
-                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                          Background="{TemplateBinding Panel.Background}"
-                                          Padding="{TemplateBinding Control.Padding}"
-                                          SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
-                                          Focusable="False">
-                                <ScrollViewer.Resources>
-                                    <Style TargetType="ScrollBar">
-                                        <!-- Fix that improper scrollbar handle drawing common in WPF -->
-                                        <Setter Property="UseLayoutRounding" Value="True" />
-                                    </Style>
-                                </ScrollViewer.Resources>
-                                <Grid Margin="0,0,0,1" RenderOptions.ClearTypeHint="Enabled">
-                                    <!-- Compensate bottom margin -1 for last item -->
-                                    <ItemsPresenter Name="content"
-                                                    KeyboardNavigation.DirectionalNavigation="Contained"
-                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                    <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0"
-                                            VerticalAlignment="Top"
-                                            Width="0">
-                                        <Border Name="selectionBorder"
-                                                BorderBrush="{Binding BorderBrushSelectionRectangle, RelativeSource={RelativeSource AncestorType=controls:MultiSelectTreeView}}"
-                                                Background="{Binding BackgroundSelectionRectangle, RelativeSource={RelativeSource AncestorType=controls:MultiSelectTreeView}}"
-                                                BorderThickness="0"
-                                                VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                Visibility="Collapsed" />
-                                    </Canvas>
-                                </Grid>
-                            </ScrollViewer>
-                        </Border>
+                        <ScrollViewer x:Name="DropDownScrollViewer">
+                            <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
+                                <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0" VerticalAlignment="Top"
+                                        Width="0">
+                                    <Rectangle x:Name="opaqueRect"
+                                               Fill="{Binding Background, ElementName=dropDownBorder}"
+                                               Height="{Binding ActualHeight, ElementName=dropDownBorder}"
+                                               Width="{Binding ActualWidth, ElementName=dropDownBorder}" />
+                                </Canvas>
+                                <ItemsPresenter x:Name="ItemsPresenter"
+                                                KeyboardNavigation.DirectionalNavigation="Contained"
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Grid>
+                        </ScrollViewer>
                     </Border>
                 </theme:SystemDropShadowChrome>
             </Popup>
@@ -358,21 +346,15 @@
                           BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="2"
                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                           Style="{StaticResource MultiSelectTreeViewToggleButton}" />
-            <StackPanel Orientation="Horizontal">
-                <ContentPresenter x:Name="contentRemarks"
-                                  Content="{TemplateBinding SelectionBoxItem}"
-                                  Visibility="Collapsed"
-                                  SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"/>
-                <ContentPresenter x:Name="contentPresenter"
-                                  ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
-                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                  Content="{TemplateBinding SelectionBoxItem}"
-                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  IsHitTestVisible="false" Margin="{TemplateBinding Padding}"
-                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-            </StackPanel>
+            <ContentPresenter x:Name="contentPresenter"
+                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                              Content="{TemplateBinding SelectionBoxItem}"
+                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              IsHitTestVisible="false" Margin="{TemplateBinding Padding}"
+                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="HasDropShadow" SourceName="PART_Popup" Value="true">
@@ -382,26 +364,6 @@
             <Trigger Property="HasItems" Value="false">
                 <Setter Property="Height" TargetName="dropDownBorder" Value="95" />
             </Trigger>
-            <Trigger Property="IsSelectionBoxItemIncludingRemark" Value="True">
-                <Setter Property="Visibility" TargetName="contentRemarks" Value="Visible" />
-                <Setter Property="ContentTemplate" TargetName="contentRemarks">
-                    <Setter.Value>
-                        <DataTemplate>
-                            <Image Source="{Binding ImageSource}">
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding }" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
-                        </DataTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsGrouping" Value="true" />
@@ -409,6 +371,12 @@
                 </MultiTrigger.Conditions>
                 <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
             </MultiTrigger>
+            <Trigger Property="ScrollViewer.CanContentScroll" SourceName="DropDownScrollViewer" Value="false">
+                <Setter Property="Canvas.Top" TargetName="opaqueRect"
+                        Value="{Binding VerticalOffset, ElementName=DropDownScrollViewer}" />
+                <Setter Property="Canvas.Left" TargetName="opaqueRect"
+                        Value="{Binding HorizontalOffset, ElementName=DropDownScrollViewer}" />
+            </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
     <Style TargetType="{x:Type controls:MultiSelectTreeView}">

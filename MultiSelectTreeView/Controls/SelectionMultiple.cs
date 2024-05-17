@@ -14,7 +14,7 @@ namespace System.Windows.Controls
 		public event EventHandler<PreviewSelectionChangedEventArgs> PreviewSelectionChanged;
 
 		private readonly MultiSelectTreeView treeView;
-		private BorderSelectionLogic borderSelectionLogic;
+		// private BorderSelectionLogic borderSelectionLogic;
 		private object lastShiftRoot;
 
 		public SelectionMultiple(MultiSelectTreeView treeView)
@@ -54,12 +54,12 @@ namespace System.Windows.Controls
 
 		public void ApplyTemplate()
 		{
-			borderSelectionLogic = new BorderSelectionLogic(
-			   treeView,
-			   treeView.Template.FindName("selectionBorder", treeView) as Border,
-			   treeView.Template.FindName("scrollViewer", treeView) as ScrollViewer,
-			   treeView.Template.FindName("content", treeView) as ItemsPresenter,
-			   MultiSelectTreeView.RecursiveTreeViewItemEnumerable(treeView, false, false));
+			// borderSelectionLogic = new BorderSelectionLogic(
+			//    treeView,
+			//    treeView.Template.FindName("selectionBorder", treeView) as Border,
+			//    treeView.Template.FindName("scrollViewer", treeView) as ScrollViewer,
+			//    treeView.Template.FindName("content", treeView) as ItemsPresenter,
+			//    MultiSelectTreeView.RecursiveTreeViewItemEnumerable(treeView, false, false));
 		}
 
 		public bool Select(MultiSelectTreeViewItem item)
@@ -393,13 +393,13 @@ namespace System.Windows.Controls
 
 		public void Dispose()
 		{
-			if (borderSelectionLogic != null)
-			{
-				borderSelectionLogic.Dispose();
-				borderSelectionLogic = null;
-			}
-
-			GC.SuppressFinalize(this);
+			// if (borderSelectionLogic != null)
+			// {
+			// 	borderSelectionLogic.Dispose();
+			// 	borderSelectionLogic = null;
+			// }
+			//
+			// GC.SuppressFinalize(this);
 		}
 
 		protected void OnPreviewSelectionChanged(PreviewSelectionChangedEventArgs e)

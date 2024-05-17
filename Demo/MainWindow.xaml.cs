@@ -37,31 +37,34 @@ namespace Demo
             private void InitializeItems(out List<FamilyProfiles> initialData)
             {
                 initialData = new List<FamilyProfiles>();
-                var familyOne = new FamilyProfiles()
+                int recordNum = 100;
+                while (recordNum-- > 0)
                 {
-                    Name = "Li",
-                    Children = new List<IAutoBindExpandableModel>
+                    var familyOne = new FamilyProfiles()
                     {
-                        new FamilyProfiles()
+                        Name = "Li",
+                        Children = new List<IAutoBindExpandableModel>
                         {
-                            Name = "Wei"
+                            new FamilyProfiles()
+                            {
+                                Name = "Wei"
+                            }
                         }
-                    }
-                };
-                
-                var familyTwo = new FamilyProfiles()
-                {
-                    Name = "Zha",
-                    Children = new List<IAutoBindExpandableModel>
+                    };
+                    var familyTwo = new FamilyProfiles()
                     {
-                        new FamilyProfiles()
+                        Name = "Zha",
+                        Children = new List<IAutoBindExpandableModel>
                         {
-                            Name = "June"
+                            new FamilyProfiles()
+                            {
+                                Name = "June"
+                            }
                         }
-                    }
-                }; 
-                initialData.Add(familyOne);
-                initialData.Add(familyTwo);
+                    }; 
+                    initialData.Add(familyOne);
+                    initialData.Add(familyTwo);
+                }
             }
         }
         
