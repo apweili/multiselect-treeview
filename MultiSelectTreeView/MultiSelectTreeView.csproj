@@ -154,8 +154,8 @@
     <Compile Include="Extensions\ConvenientBindableDataModelExtensions.cs" />
     <Compile Include="Helpers\AutoBindHelper.cs" />
     <Compile Include="Helpers\PropertyPathHelper.cs" />
-    <Compile Include="Interfaces\IAutoBindExpandableModel.cs" />
-    <Compile Include="Interfaces\IAutoBindImageSourceModel.cs" />
+    <Compile Include="Models\IAutoBindExpandableModel.cs" />
+    <Compile Include="Models\IAutoBindImageSourceModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,6 +1,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interfaces;
+using System.Windows.Models;
 
 namespace System.Windows.Extensions
 {

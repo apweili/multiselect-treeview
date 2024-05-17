@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Interfaces;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Models;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Demo.ViewModel;
