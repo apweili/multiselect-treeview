@@ -688,11 +688,13 @@ namespace System.Windows.Controls
             base.OnMouseDown(e);
 
             FrameworkElement itemContent = (FrameworkElement)Template.FindName("PART_Header", this);
-            if (itemContent == null || !((FrameworkElement)itemContent.Parent).IsMouseOver)
-            {
-                // A (probably disabled) child item was really clicked, do nothing here
-                return;
-            }
+            
+            //comment the  code
+            // if (itemContent == null || !((FrameworkElement)itemContent.Parent).IsMouseOver)
+            // {
+            //     // A (probably disabled) child item was really clicked, do nothing here
+            //     return;
+            // }
 
             if (e.ChangedButton == MouseButton.Left)
             {
