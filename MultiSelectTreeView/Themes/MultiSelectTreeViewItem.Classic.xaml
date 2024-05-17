@@ -12,6 +12,8 @@
     <SolidColorBrush x:Key="MultiSelectTreeViewItem.TreeArrow.Static.Checked.Fill" Color="#FF595959" />
     <SolidColorBrush x:Key="MultiSelectTreeViewItem.TreeArrow.MouseOver.Checked.Stroke" Color="#FF1CC4F7" />
     <SolidColorBrush x:Key="MultiSelectTreeViewItem.TreeArrow.MouseOver.Checked.Fill" Color="#FF82DFFB" />
+    <SolidColorBrush x:Key="Item.MouseOver.Background" Color="#1F26A0DA" />
+    <SolidColorBrush x:Key="Item.MouseOver.Border" Color="#a826A0Da" />
     <PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z" />
     <Style x:Key="ExpandCollapseToggleStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Focusable" Value="False" />
@@ -114,6 +116,8 @@
                                       IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                       Style="{StaticResource ExpandCollapseToggleStyle}" />
                         <CheckBox x:Name="SelectionCheckBox" Grid.Row="0" Grid.Column="0" Focusable="False" Visibility="Collapsed"/>
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="BorderOfSelection" Focusable="False"
+                                Margin="-1000, 0, 0, 0"/>
                         <StackPanel  x:Name="ContentStackPanel" Grid.Column="1" Orientation="Horizontal">
                             <ContentPresenter
                                 Content="{TemplateBinding Remarks}"
@@ -141,6 +145,17 @@
                         <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"  />
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="BorderOfSelection"
+                                    Value="{StaticResource Item.MouseOver.Background}" />
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection"
+                                    Value="{StaticResource Item.MouseOver.Border}" />
+                        </MultiTrigger>
                         <Trigger Property="IsExpanded" Value="false">
                             <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed" />
                         </Trigger>
