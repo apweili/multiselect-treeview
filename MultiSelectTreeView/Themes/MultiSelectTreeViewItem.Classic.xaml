@@ -152,15 +152,6 @@
                             <Setter Property="Foreground"
                                     Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
                         </Trigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsSelected" Value="true" />
-                            </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd"
-                                    Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}" />
-                            <Setter Property="Foreground"
-                                    Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" />
-                        </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground"
                                     Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
