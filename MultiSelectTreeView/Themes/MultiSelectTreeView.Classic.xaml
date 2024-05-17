@@ -346,15 +346,21 @@
                           BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="2"
                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                           Style="{StaticResource MultiSelectTreeViewToggleButton}" />
-            <ContentPresenter x:Name="contentPresenter"
-                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
-                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                              Content="{TemplateBinding SelectionBoxItem}"
-                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                              IsHitTestVisible="false" Margin="{TemplateBinding Padding}"
-                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            <StackPanel Orientation="Horizontal">
+                <ContentPresenter x:Name="contentRemarks"
+                                  Content="{TemplateBinding SelectionBoxItem}"
+                                  Visibility="Collapsed"
+                                  SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"/>
+                <ContentPresenter x:Name="contentPresenter"
+                                  ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                  Content="{TemplateBinding SelectionBoxItem}"
+                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  IsHitTestVisible="false" Margin="{TemplateBinding Padding}"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </StackPanel>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="HasDropShadow" SourceName="PART_Popup" Value="true">
@@ -376,6 +382,26 @@
                         Value="{Binding VerticalOffset, ElementName=DropDownScrollViewer}" />
                 <Setter Property="Canvas.Left" TargetName="opaqueRect"
                         Value="{Binding HorizontalOffset, ElementName=DropDownScrollViewer}" />
+            </Trigger>
+            <Trigger Property="IsSelectionBoxItemIncludingRemark" Value="True">
+                <Setter Property="Visibility" TargetName="contentRemarks" Value="Visible" />
+                <Setter Property="ContentTemplate" TargetName="contentRemarks">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <Image Source="{Binding ImageSource}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding }" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
