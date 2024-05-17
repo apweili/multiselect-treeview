@@ -61,9 +61,30 @@ namespace Demo
                                 Name = "June"
                             }
                         }
-                    }; 
+                    };
+                    
+                    var familyThree = new FamilyProfiles()
+                    {
+                        Name = "Zha",
+                        Children = new List<IAutoBindExpandableModel>
+                        {
+                            new FamilyProfiles()
+                            {
+                                Name = "Qioa",
+                                Children = new List<IAutoBindExpandableModel>()
+                                {
+                                    new FamilyProfiles()
+                                    {
+                                        Name = "Mei"
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    
                     initialData.Add(familyOne);
                     initialData.Add(familyTwo);
+                    initialData.Add(familyThree);
                 }
             }
         }
