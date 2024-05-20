@@ -617,7 +617,7 @@ namespace System.Windows.Controls
             }
         }
 
-        internal IEnumerable<object> GetAllItems()
+        internal IEnumerable<object> GetAllItemsByAutoBindExpandableModel()
         {
             var itemsSourceQueue = new Queue<IEnumerable>();
             itemsSourceQueue.Enqueue(Items);
@@ -638,7 +638,17 @@ namespace System.Windows.Controls
                         itemsSourceQueue.Enqueue(autoBindableModel.Children);
                     }
                 }
+            } 
+        }
+        
+        internal IEnumerable<object> GetAllItems()
+        {
+            if (Items.Cast<object>().All(item => item is IAutoBindExpandableModel))
+            {
+                return GetAllItemsByAutoBindExpandableModel();
             }
+
+            return GetAllItemsByTreeViewItem();
         }
 
 
