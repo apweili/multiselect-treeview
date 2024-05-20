@@ -10,16 +10,17 @@ namespace System.Windows.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            const string SplitSymbol = "";
             var selectedItems = value as List<object>;
             var displayMemberPath = parameter as string;
             if (selectedItems != null)
             {
                 if (string.IsNullOrEmpty(displayMemberPath))
                 {
-                    return string.Join(";", selectedItems.Select(item => item.ToString()));
+                    return string.Join(SplitSymbol, selectedItems.Select(item => item.ToString()));
                 }
 
-                return string.Join(";",
+                return string.Join(SplitSymbol,
                     selectedItems.Select(item => PropertyPathHelper.GetObjectByPropertyPath(item, displayMemberPath)));
             }
 
