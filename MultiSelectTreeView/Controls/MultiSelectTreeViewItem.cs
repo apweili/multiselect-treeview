@@ -329,7 +329,7 @@ namespace System.Windows.Controls
             set { SetValue(RemarksTemplateProperty, value); }
         }
 
-        [TypeConverter(typeof(ImageSourceConverter))]
+        // [TypeConverter(typeof(ImageSourceConverter))]
         public object ImageSource
         {
             get { return GetValue(ImageSourceProperty); }
@@ -687,7 +687,7 @@ namespace System.Windows.Controls
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            if (IsSelectItemByCheckBox)
+            if (HasItems || IsSelectItemByCheckBox)
             {
                 e.Handled = true;
                 return;
