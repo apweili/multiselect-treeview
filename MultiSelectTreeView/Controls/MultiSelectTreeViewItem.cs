@@ -683,8 +683,16 @@ namespace System.Windows.Controls
             //System.Diagnostics.Debug.WriteLine(Environment.StackTrace);
         }
 
+        private bool IsSelectItemByCheckBox => (bool)GetValue(MultiSelectTreeView.SelectItemByCheckBoxProperty);
+
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            if (IsSelectItemByCheckBox)
+            {
+                e.Handled = true;
+                return;
+            }
+            
             //System.Diagnostics.Debug.WriteLine("MultiSelectTreeViewItem.OnMouseDown(Item = " + this.DisplayName + ", Button = " + e.ChangedButton + ")");
             base.OnMouseDown(e);
 
