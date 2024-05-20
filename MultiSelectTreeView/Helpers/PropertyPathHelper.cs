@@ -38,14 +38,7 @@
                     continue;
                 }
 
-                if (obj != null)
-                {
-                    return obj.GetType().GetProperty(path)?.GetValue(obj, null);
-                }
-                else
-                {
-                    return null;
-                }
+                return obj?.GetType().GetProperty(path)?.GetValue(obj, null);
             }
         }
     }
