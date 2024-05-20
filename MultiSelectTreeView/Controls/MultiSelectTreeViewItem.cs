@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace System.Windows.Controls
 {
-    public class MultiSelectTreeViewItem : HeaderedItemsControl
+    public partial class MultiSelectTreeViewItem : HeaderedItemsControl
     {
         #region Dependency properties
 

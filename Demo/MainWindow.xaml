@@ -18,7 +18,7 @@
         <Button Width="100" Click="ButtonBase_OnClick"></Button>
         <TextBlock DockPanel.Dock="Top" Style="{StaticResource FirstCaption}">The TreeView control</TextBlock>
         <controls:MultiSelectTreeView
-            Width="96"
+            MinWidth="96"
             Height="20"
             Name="TheSpecialTreeView"
             ItemsSource="{Binding Items}"

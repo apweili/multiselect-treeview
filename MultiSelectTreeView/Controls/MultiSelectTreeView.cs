@@ -180,7 +180,7 @@ namespace System.Windows.Controls
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            _popup = (Popup)GetTemplateChild(ContentPopupName);
+            Popup = (Popup)GetTemplateChild(ContentPopupName);
             Selection.ApplyTemplate();
         }
 
@@ -766,7 +766,7 @@ namespace System.Windows.Controls
 
         #endregion
 
-        private Popup _popup;
+        private Popup Popup { get; set; }
         private const string ContentPopupName = "PART_Popup";
     }
 }

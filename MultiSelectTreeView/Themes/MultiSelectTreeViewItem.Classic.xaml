@@ -102,7 +102,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:MultiSelectTreeViewItem}">
-                    <Grid>
+                    <Grid x:Name="Part_LayoutGrid">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MinWidth="19" Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -115,10 +115,13 @@
                         <ToggleButton x:Name="Expander" ClickMode="Press"
                                       IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                       Style="{StaticResource ExpandCollapseToggleStyle}" />
-                        <CheckBox x:Name="SelectionCheckBox" Grid.Row="0" Grid.Column="0" Focusable="False" Visibility="Collapsed"/>
-                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="BorderOfSelection" Focusable="False"
-                                Margin="-1000, 0, 0, 0"/>
-                        <StackPanel  x:Name="ContentStackPanel" Grid.Column="1" Orientation="Horizontal">
+                        <CheckBox x:Name="SelectionCheckBox" Grid.Row="0" Grid.Column="0"
+                                  Margin="{Binding IndentMargin, RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                                  Focusable="False" Visibility="Collapsed" />
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="BorderOfSelection"
+                                Focusable="False"
+                                Margin="{Binding IndentMargin, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                        <StackPanel x:Name="ContentStackPanel" Grid.Column="1" Orientation="Horizontal">
                             <ContentPresenter
                                 Content="{TemplateBinding Remarks}"
                                 ContentTemplate="{TemplateBinding RemarksTemplate}"

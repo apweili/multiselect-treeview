@@ -82,10 +82,9 @@ namespace Demo
                             }
                         }
                     };
-                    
+                    initialData.Add(familyThree); 
                     initialData.Add(familyOne);
                     initialData.Add(familyTwo);
-                    initialData.Add(familyThree);
                 }
             }
         }
