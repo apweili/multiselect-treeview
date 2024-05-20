@@ -156,7 +156,7 @@ namespace System.Windows.Controls
             "ImageSource",
             typeof(object),
             typeof(MultiSelectTreeViewItem));
-
+        
         #endregion Others
 
         #endregion Dependency properties

@@ -56,7 +56,6 @@ namespace System.Windows.Controls
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            SynchronizeSelectedItemState();
         }
 
         public static DependencyProperty AllowEditItemsProperty = DependencyProperty.Register(
@@ -450,7 +449,7 @@ namespace System.Windows.Controls
                 treeView.Selection.PreviewSelectionChanged += treeView.PreviewSelectionChangedHandler;
             }
 
-            var defaultSelectedItem = treeView.InternalSelectedItems.Cast<object>().LastOrDefault();
+            var defaultSelectedItem = treeView.InternalSelectedItems.OfType<object>().LastOrDefault();
             treeView.UnSelectAllItem();
             if (defaultSelectedItem != null)
             {
@@ -621,7 +620,7 @@ namespace System.Windows.Controls
         {
             var itemsSourceQueue = new Queue<IEnumerable>();
             itemsSourceQueue.Enqueue(Items);
-            while (itemsSourceQueue.Peek() != null)
+            while (itemsSourceQueue.Count > 0 && itemsSourceQueue.Peek() != null)
             {
                 var items = itemsSourceQueue.Dequeue();
                 foreach (var item in items)

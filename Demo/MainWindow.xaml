@@ -18,12 +18,14 @@
         <Button Width="100" Click="ButtonBase_OnClick"></Button>
         <TextBlock DockPanel.Dock="Top" Style="{StaticResource FirstCaption}">The TreeView control</TextBlock>
         <controls:MultiSelectTreeView
-            MinWidth="96"
+            Width="Auto"
             Height="20"
             Name="TheSpecialTreeView"
             ItemsSource="{Binding Items}"
             SelectedItems="{Binding SelectedItems}"
             DisplayMemberPath="Name"
+            SelectedValue="Meieeeeeee"
+            SelectedValuePath="Name"
             SelectionMode="{Binding Mode}"
             SelectItemByCheckBox = "False">
             <controls:MultiSelectTreeView.ContextMenu>

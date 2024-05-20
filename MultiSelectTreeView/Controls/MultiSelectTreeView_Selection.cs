@@ -288,16 +288,7 @@ namespace System.Windows.Controls
 
             return baseValue;
         }
-
-        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
-        {
-            base.OnItemsSourceChanged(oldValue, newValue);
-            if (IsInitialized)
-            {
-                SynchronizeSelectedItemState();
-            }
-        }
-
+        
         /// <summary>
         ///     SelectedIndex DependencyProperty
         /// </summary>
@@ -355,7 +346,7 @@ namespace System.Windows.Controls
                 return;
             }
 
-            var externalSelectedItems = SelectedItems.Cast<object>().ToList();
+            var externalSelectedItems = SelectedItems.OfType<object>().ToList();
             InternalSelectedItems.Clear();
             foreach (var item in externalSelectedItems)
             {
@@ -554,28 +545,7 @@ namespace System.Windows.Controls
 
         private bool TryToSelectItemByValue(object selectedValue)
         {
-            object selectedItem;
-            if (selectedValue == null)
-            {
-                selectedItem = null;
-            }
-            else
-            {
-                var valuePath = SelectedValuePath;
-                var items = GetAllItems();
-                if (string.IsNullOrEmpty(valuePath))
-                {
-                    selectedItem = items.FirstOrDefault(selectedValue.Equals);
-                }
-                else
-                {
-                    selectedItem = items.FirstOrDefault(item => item != null &&
-                                                                selectedValue.Equals(
-                                                                    PropertyPathHelper.GetObjectByPropertyPath(item,
-                                                                        valuePath)));
-                }
-            }
-
+            var selectedItem = selectedValue == null ? null : GetSelectedItemByValue(selectedValue);
             if (selectedItem != null && IsItemSelected(selectedItem))
             {
                 return true;
@@ -590,6 +560,21 @@ namespace System.Windows.Controls
 
             LastSelectedItem = lastSelectedItem;
             return true;
+        }
+
+        private object GetSelectedItemByValue(object selectedValue)
+        {
+            var valuePath = SelectedValuePath;
+            var items = GetAllItems();
+            if (string.IsNullOrEmpty(valuePath))
+            {
+                return items.FirstOrDefault(selectedValue.Equals);
+            }
+            
+            return items.FirstOrDefault(item => item != null &&
+                                                selectedValue.Equals(
+                                                    PropertyPathHelper.GetObjectByPropertyPath(item,
+                                                        valuePath)));
         }
 
         private void SelectItemInMultiSelectionMode(object item)
@@ -649,38 +634,6 @@ namespace System.Windows.Controls
             return InternalSelectedItems.Contains(item);
         }
 
-        private void SynchronizeSelectedItemState()
-        {
-            var selectedItem = SelectedItem;
-            if (selectedItem != null)
-            {
-                SelectItem(selectedItem);
-                return;
-            }
-
-            var selectedValue = SelectedValue;
-            if (selectedValue != null)
-            {
-                TryToSelectItemByValue(selectedValue);
-                return;
-            }
-
-            var selectedIndex = SelectedIndex;
-            if (selectedIndex > -1)
-            {
-                SelectItemByIndex(selectedIndex);
-                return;
-            }
-
-            var validSelectedItem =
-                InternalSelectedItems.Cast<object>().Where(item => Items.Contains(item)).ToList();
-            UnSelectAllItem();
-            foreach (var validItem in validSelectedItem)
-            {
-                SelectItem(validItem);
-            }
-        }
-
         internal int GetSelectedItemsCount()
         {
             return InternalSelectedItems.Count;
@@ -691,23 +644,55 @@ namespace System.Windows.Controls
             return InternalSelectedItems.Cast<object>().ToList();
         }
 
+        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
+        {
+            base.OnItemsSourceChanged(oldValue, newValue);
+            IsItemsInitialized = true;
+        }
+
+        private bool IsItemsInitialized { get; set; }
+        private bool IsSelectionInitialized { get; set; }
         private void SyncSelectedInfoAfterUpdateSelectedItems()
         {
-            if (!IsInitialized)
+            if (!IsItemsInitialized)
             {
                 return;
             }
 
-            object selectedItem;
-            if (InternalSelectedItems.Count == 0)
+            var selectedItem = InternalSelectedItems.Count == 0 ? null : InternalSelectedItems.Last();
+            if (IsSelectionInitialized)
             {
-                selectedItem = null;
-            }
-            else
-            {
-                selectedItem = InternalSelectedItems.Last();
+                SyncSelectedInfoNormal(selectedItem);
             }
 
+            SyncSelectedInfoTheFirstTime(selectedItem);
+        }
+
+        private void SyncSelectedInfoTheFirstTime(object selectedItem)
+        {
+            if (selectedItem == null)
+            {
+                if (SelectedValue != null)
+                {
+                    selectedItem = GetSelectedItemByValue(SelectedValue);
+                }
+
+                var selectedIndex = SelectedIndex;
+                if (selectedItem == null && selectedIndex > -1 && selectedIndex < Items.Count)
+                {
+                    selectedItem = Items.IndexOf(selectedIndex);
+                }
+            }
+
+            Dispatcher.InvokeAsync(() =>
+            {
+                SyncSelectedInfoNormal(selectedItem);
+                IsSelectionInitialized = true;
+            });
+        }
+        
+        private void SyncSelectedInfoNormal(object selectedItem)
+        {
             SelectedItem = selectedItem;
             UpdateSelectionBoxItem();
             if (selectedItem != null)
@@ -720,7 +705,7 @@ namespace System.Windows.Controls
             {
                 SelectedIndex = -1;
                 SelectedValue = null;
-            }
+            }  
         }
 
         private void UpdateSelectionBoxItem()
@@ -729,7 +714,7 @@ namespace System.Windows.Controls
             // var selectedItem = SelectedItem;
             // var itemTemplate = ItemTemplate;
             // var stringFormat = ItemStringFormat;
-            var internalSelectedItems = InternalSelectedItems.Cast<object>().ToList();
+            var internalSelectedItems = InternalSelectedItems.OfType<object>().ToList();
             if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
                 SelectionBoxItem = internalSelectedItems;

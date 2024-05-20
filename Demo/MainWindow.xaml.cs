@@ -38,7 +38,7 @@ namespace Demo
             private void InitializeItems(out List<FamilyProfiles> initialData)
             {
                 initialData = new List<FamilyProfiles>();
-                int recordNum = 100;
+                int recordNum = 1;
                 while (recordNum-- > 0)
                 {
                     var familyOne = new FamilyProfiles()
@@ -76,15 +76,15 @@ namespace Demo
                                 {
                                     new FamilyProfiles()
                                     {
-                                        Name = "Meieeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                                        Name = "Meieeeeeee"
                                     }
                                 }
                             }
                         }
                     };
                     initialData.Add(familyThree); 
-                    initialData.Add(familyOne);
-                    initialData.Add(familyTwo);
+                    // initialData.Add(familyOne);
+                    // initialData.Add(familyTwo);
                 }
             }
         }
