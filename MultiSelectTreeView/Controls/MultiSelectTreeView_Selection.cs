@@ -682,7 +682,7 @@ namespace System.Windows.Controls
                 var selectedIndex = SelectedIndex;
                 if (selectedItem == null && selectedIndex > -1 && selectedIndex < Items.Count)
                 {
-                    selectedItem = Items.IndexOf(selectedIndex);
+                    selectedItem = Items[selectedIndex];
                 }
             }
 
