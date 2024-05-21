@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Windows.Threading;
 
 namespace System.Windows.Controls
 {
@@ -33,9 +34,31 @@ namespace System.Windows.Controls
                     new PropertyChangedCallback(OnIsDropDownOpenChanged),
                     new CoerceValueCallback(CoerceIsDropDownOpen)));
 
-        private static object CoerceIsDropDownOpen(DependencyObject d, object basevalue)
+        private static object CoerceIsDropDownOpen(DependencyObject d, object value)
         {
-            return basevalue;
+            if (!(bool)value)
+            {
+                return value;
+            }
+            
+            var cb = (MultiSelectTreeView) d;
+            if (!cb.IsLoaded)
+            {
+                cb.RegisterToOpenOnLoad();
+                return false;
+            }
+
+            return value;
+        }
+        
+        private void RegisterToOpenOnLoad()
+        {
+            Loaded += OpenOnLoad;
+        }
+ 
+        private void OpenOnLoad(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.InvokeAsync(() => CoerceValue(IsDropDownOpenProperty), DispatcherPriority.Input);
         }
 
         private static void OnIsDropDownOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

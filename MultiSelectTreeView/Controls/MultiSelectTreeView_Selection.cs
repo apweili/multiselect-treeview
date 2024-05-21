@@ -722,7 +722,12 @@ namespace System.Windows.Controls
             {
                 SelectedIndex = -1;
                 SelectedValue = null;
-            }  
+            }
+
+            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
+            {
+                IsDropDownOpen = false;
+            }
         }
 
         private void UpdateSelectionBoxItem()
