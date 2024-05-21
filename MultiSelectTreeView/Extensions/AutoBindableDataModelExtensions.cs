@@ -24,28 +24,26 @@ namespace System.Windows.Extensions
 
         public static IEnumerable<IAutoBindExpandableModel> Selected(this IAutoBindExpandableModel model)
         {
-            return Selected(model, true);
+            var parent = model.Parent;
+            while (parent != null)
+            {
+                parent.IsExpanded = true;
+                parent = parent.Parent;
+            }
+            
+            return SelectedAndExpand(model);
         }
 
-        private static IEnumerable<IAutoBindExpandableModel> Selected(IAutoBindExpandableModel model, bool isExpand)
+        private static IEnumerable<IAutoBindExpandableModel> SelectedAndExpand(IAutoBindExpandableModel model)
         {
-            if (isExpand)
-            {
-                var parent = model.Parent;
-                while (parent != null)
-                {
-                    parent.IsExpanded = true;
-                    parent = parent.Parent;
-                }
-            }
-
+            model.IsExpanded = true;
             if (model.Children == null)
             {
                 yield return model;
             }
             else
             {
-                foreach (var child in model.Children.SelectMany(c => Selected(c, true)))
+                foreach (var child in model.Children.SelectMany(SelectedAndExpand))
                 {
                     yield return child;
                 }
