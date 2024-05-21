@@ -620,7 +620,7 @@ namespace System.Windows.Controls
         {
             var itemsSourceQueue = new Queue<IEnumerable>();
             itemsSourceQueue.Enqueue(Items);
-            while (itemsSourceQueue.Count > 0 && itemsSourceQueue.Peek() != null)
+            while (itemsSourceQueue.Count > 0)
             {
                 var items = itemsSourceQueue.Dequeue();
                 foreach (var item in items)
@@ -632,7 +632,11 @@ namespace System.Windows.Controls
                         continue;
                     }
 
-                    itemsSourceQueue.Enqueue(autoBindableModel.Children);
+                    var childrenOfItem = autoBindableModel.Children;
+                    if (childrenOfItem != null)
+                    {
+                        itemsSourceQueue.Enqueue(childrenOfItem);
+                    }
                 }
             } 
         }

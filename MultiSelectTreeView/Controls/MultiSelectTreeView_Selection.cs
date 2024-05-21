@@ -7,8 +7,10 @@ using System.Linq;
 using System.Windows.Controls.Primitives;
 using System.Windows.Converters;
 using System.Windows.Data;
+using System.Windows.Extensions;
 using System.Windows.Helpers;
 using System.Windows.Interfaces;
+using System.Windows.Models;
 using System.Windows.Threading;
 
 namespace System.Windows.Controls
@@ -152,11 +154,10 @@ namespace System.Windows.Controls
         /// </summary>
         public static readonly DependencyProperty SelectItemByCheckBoxProperty =
             DependencyProperty.RegisterAttached("SelectItemByCheckBox", typeof(bool), typeof(MultiSelectTreeView),
-                new FrameworkPropertyMetadata(false, propertyChangedCallback:OnSelectItemByCheckBoxChanged));
+                new FrameworkPropertyMetadata(false, propertyChangedCallback: OnSelectItemByCheckBoxChanged));
 
         private static void OnSelectItemByCheckBoxChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            
         }
 
         public bool SelectItemByCheckBox
@@ -289,7 +290,7 @@ namespace System.Windows.Controls
 
             return baseValue;
         }
-        
+
         /// <summary>
         ///     SelectedIndex DependencyProperty
         /// </summary>
@@ -453,12 +454,12 @@ namespace System.Windows.Controls
 
         private void BeginSelect()
         {
-            IsUpdatingSelectedItems = true; 
+            IsUpdatingSelectedItems = true;
         }
 
         private void EndSelect()
         {
-            IsUpdatingSelectedItems = false; 
+            IsUpdatingSelectedItems = false;
         }
 
         private bool IsSelecting()
@@ -547,6 +548,19 @@ namespace System.Windows.Controls
             SelectItemInMultiSelectionMode(item);
         }
 
+        internal void SelectItems(IEnumerable items)
+        {
+            if (SelectionMode != TreeViewSelectionMode.MultiSelectEnabled)
+            {
+                return;
+            }
+
+            foreach (var item in items)
+            {
+                SelectItem(item);
+            }
+        }
+
         private void SelectItemByIndex(int index)
         {
             Contract.Assert(index < Items.Count, "index < Items.Count");
@@ -586,7 +600,7 @@ namespace System.Windows.Controls
             {
                 return items.FirstOrDefault(selectedValue.Equals);
             }
-            
+
             return items.FirstOrDefault(item => item != null &&
                                                 selectedValue.Equals(
                                                     PropertyPathHelper.GetObjectByPropertyPath(item,
@@ -668,6 +682,7 @@ namespace System.Windows.Controls
 
         private bool IsItemsInitialized { get; set; }
         private bool IsSelectionInitialized { get; set; }
+
         private void SyncSelectedInfoAfterUpdateSelectedItems()
         {
             if (!IsItemsInitialized)
@@ -707,9 +722,23 @@ namespace System.Windows.Controls
                 IsSelectionInitialized = true;
             }, DispatcherPriority.Input);
         }
-        
+
         private void SyncSelectedInfoNormal(object selectedItem)
         {
+            if (SelectItemByCheckBox)
+            {
+                var autoBindableModel = selectedItem as IAutoBindExpandableModel;
+                if (autoBindableModel != null)
+                {
+                    var selectedItems = autoBindableModel.Selected().ToList();
+                    if (selectedItems.Count > 1)
+                    {
+                        Dispatcher.InvokeAsync(() => { SelectItems(selectedItems); }, DispatcherPriority.Input);
+                        return;
+                    }
+                }
+            }
+
             SelectedItem = selectedItem;
             UpdateSelectionBoxItem();
             if (selectedItem != null)

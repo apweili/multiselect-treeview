@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Automation.Peers;
+using System.Windows.Enums;
 using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -154,6 +155,11 @@ namespace System.Windows.Controls
         public static DependencyProperty ImageSourceProperty = DependencyProperty.Register(
             "ImageSource",
             typeof(object),
+            typeof(MultiSelectTreeViewItem));
+        
+        public static DependencyProperty SelectionCheckStateProperty = DependencyProperty.Register(
+            "SelectionCheckState",
+            typeof(SelectionCheckState),
             typeof(MultiSelectTreeViewItem));
         
         #endregion Others
@@ -328,11 +334,16 @@ namespace System.Windows.Controls
             set { SetValue(RemarksTemplateProperty, value); }
         }
 
-        // [TypeConverter(typeof(ImageSourceConverter))]
         public object ImageSource
         {
             get { return GetValue(ImageSourceProperty); }
             set { SetValue(ImageSourceProperty, value); }
+        }
+
+        public SelectionCheckState SelectionCheckState
+        {
+            get { return (SelectionCheckState)GetValue(SelectionCheckStateProperty); }
+            set { SetValue(SelectionCheckStateProperty, value); }
         }
 
         #endregion Others

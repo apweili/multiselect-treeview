@@ -117,7 +117,8 @@
                                       Style="{StaticResource ExpandCollapseToggleStyle}" />
                         <CheckBox x:Name="SelectionCheckBox" Grid.Row="0" Grid.Column="0"
                                   Margin="{Binding IndentMargin, RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                                  Focusable="False" Visibility="Collapsed" />
+                                  Focusable="False" Visibility="Collapsed">
+                        </CheckBox>
                         <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="BorderOfSelection"
                                 Focusable="False"
                                 Margin="{Binding IndentMargin, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
@@ -186,6 +187,15 @@
                             <Setter Property="Grid.Column" TargetName="Expander" Value= "1" />
                             <Setter Property="Grid.Column" TargetName="ContentStackPanel" Value="2" />
                         </MultiTrigger>
+                        <Trigger Property="SelectionCheckState" Value="FullSelected">
+                            <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="True" />
+                        </Trigger>
+                        <Trigger Property="SelectionCheckState" Value="PartSelected">
+                            <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="{x:Null}" />
+                        </Trigger> 
+                        <Trigger Property="SelectionCheckState" Value="UnSelected">
+                            <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="False" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
