@@ -632,10 +632,7 @@ namespace System.Windows.Controls
                         continue;
                     }
 
-                    if (autoBindableModel.Children != null)
-                    {
-                        itemsSourceQueue.Enqueue(autoBindableModel.Children);
-                    }
+                    itemsSourceQueue.Enqueue(autoBindableModel.Children);
                 }
             } 
         }

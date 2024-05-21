@@ -9,6 +9,7 @@ using System.Windows.Converters;
 using System.Windows.Data;
 using System.Windows.Helpers;
 using System.Windows.Interfaces;
+using System.Windows.Threading;
 
 namespace System.Windows.Controls
 {
@@ -663,6 +664,7 @@ namespace System.Windows.Controls
             if (IsSelectionInitialized)
             {
                 SyncSelectedInfoNormal(selectedItem);
+                return;
             }
 
             SyncSelectedInfoTheFirstTime(selectedItem);
@@ -688,7 +690,7 @@ namespace System.Windows.Controls
             {
                 SyncSelectedInfoNormal(selectedItem);
                 IsSelectionInitialized = true;
-            });
+            }, DispatcherPriority.Input);
         }
         
         private void SyncSelectedInfoNormal(object selectedItem)
