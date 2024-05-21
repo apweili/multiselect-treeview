@@ -3,7 +3,9 @@
     public partial class MultiSelectTreeViewItem
     {
         private const string GridLayoutName = "Part_LayoutGrid";
-        internal Grid LayoutGrid { get; set; }
+        private const string CheckBoxName = "SelectionCheckBox";
+        internal CheckBox CheckBox { get; private set; }
+        internal Grid LayoutGrid { get; private set; }
         private static readonly DependencyPropertyKey IndentMarginPropertyKey =
             DependencyProperty.RegisterReadOnly("IndentMargin", typeof(Thickness), typeof(MultiSelectTreeViewItem),
                 new FrameworkPropertyMetadata(new Thickness()));
@@ -19,7 +21,31 @@
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            LayoutGrid = (Grid)GetTemplateChild(GridLayoutName);}
+            LayoutGrid = (Grid)GetTemplateChild(GridLayoutName);
+            CheckBox = (CheckBox)GetTemplateChild(CheckBoxName);
+            CheckBox.Checked += CheckBoxOnChecked;
+            CheckBox.Unchecked += CheckBoxOnUnchecked;
+        }
+
+        private void CheckBoxOnUnchecked(object sender, RoutedEventArgs e)
+        {
+            if (!ParentTreeView.SelectItemByCheckBox)
+            {
+                return;
+            }
+            
+            ParentTreeView.Selection.Deselect(this);
+        }
+
+        private void CheckBoxOnChecked(object sender, RoutedEventArgs e)
+        {
+            if (!ParentTreeView.SelectItemByCheckBox)
+            {
+                return;
+            }
+            
+            ParentTreeView.Selection.Select(this);
+        }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {

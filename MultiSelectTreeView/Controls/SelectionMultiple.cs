@@ -189,7 +189,7 @@ namespace System.Windows.Controls
 						lastShiftRoot = item.DataContext;
 						return false;
 					}
-					if (!e2.CancelThis)
+					if (!e2.CancelThis && !treeView.SelectItemByCheckBox)
 					{
 						treeView.UnSelectItem(selItem);
 					}

@@ -539,6 +539,21 @@ namespace System.Windows.Controls
 
         internal void SelectItem(object item)
         {
+            var autoBindableModel = item as IAutoBindExpandableModel;
+            if (autoBindableModel != null)
+            {
+                var selectedItems = autoBindableModel.Selected().ToList();
+                if (selectedItems.Count == 1)
+                {
+                    item = selectedItems[0];
+                }
+                else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+                {
+                    SelectItems(selectedItems);
+                    return;
+                }
+            }
+            
             if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
                 SelectItemInSingleSelectionMode(item);
@@ -633,11 +648,34 @@ namespace System.Windows.Controls
             InternalSelectedItems.Add(item);
         }
 
+        private void UnSelectItems(IEnumerable items)
+        {
+            foreach (var item in items)
+            {
+                UnSelectItem(item);
+            }
+        }
+        
         internal void UnSelectItem(object item)
         {
             if (IsSelecting())
             {
                 return;
+            }
+            
+            var autoBindableModel = item as IAutoBindExpandableModel;
+            if (autoBindableModel != null)
+            {
+                var selectedItems = autoBindableModel.Selected().ToList();
+                if (selectedItems.Count == 1)
+                {
+                    item = selectedItems[0];
+                }
+                else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+                {
+                    UnSelectItems(selectedItems);
+                    return;
+                }
             }
 
             var index = InternalSelectedItems.IndexOf(item);
@@ -725,20 +763,6 @@ namespace System.Windows.Controls
 
         private void SyncSelectedInfoNormal(object selectedItem)
         {
-            if (SelectItemByCheckBox)
-            {
-                var autoBindableModel = selectedItem as IAutoBindExpandableModel;
-                if (autoBindableModel != null)
-                {
-                    var selectedItems = autoBindableModel.Selected().ToList();
-                    if (selectedItems.Count > 1)
-                    {
-                        Dispatcher.InvokeAsync(() => { SelectItems(selectedItems); }, DispatcherPriority.Input);
-                        return;
-                    }
-                }
-            }
-
             SelectedItem = selectedItem;
             UpdateSelectionBoxItem();
             if (selectedItem != null)

@@ -150,7 +150,7 @@ namespace Demo
             // _nodeToAdd = node132;
             // rootNode.SelectedItems.Add(node1);
             // rootNode.SelectedItems.Add(node2);
-            TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.SingleSelectOnly;
+            TheSpecialTreeView.SelectionMode = TreeViewSelectionMode.MultiSelectEnabled;
 
             // Loaded += (sender, args) =>
             // {

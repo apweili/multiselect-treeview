@@ -27,9 +27,9 @@ namespace System.Windows.Extensions
             return Selected(model, true);
         }
 
-        private static IEnumerable<IAutoBindExpandableModel> Selected(IAutoBindExpandableModel model, bool isSelectNode)
+        private static IEnumerable<IAutoBindExpandableModel> Selected(IAutoBindExpandableModel model, bool isExpand)
         {
-            if (isSelectNode)
+            if (isExpand)
             {
                 var parent = model.Parent;
                 while (parent != null)
@@ -45,7 +45,7 @@ namespace System.Windows.Extensions
             }
             else
             {
-                foreach (var child in model.Children.SelectMany(c => Selected(c, false)))
+                foreach (var child in model.Children.SelectMany(c => Selected(c, true)))
                 {
                     yield return child;
                 }

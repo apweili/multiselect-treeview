@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
@@ -10,17 +10,17 @@ namespace System.Windows.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            const string SplitSymbol = "";
-            var selectedItems = value as List<object>;
+            const string splitSymbol = "；";
+            var selectedItems = (value as IEnumerable)?.OfType<object>();
             var displayMemberPath = parameter as string;
             if (selectedItems != null)
             {
                 if (string.IsNullOrEmpty(displayMemberPath))
                 {
-                    return string.Join(SplitSymbol, selectedItems.Select(item => item.ToString()));
+                    return string.Join(splitSymbol, selectedItems.Select(item => item.ToString()));
                 }
 
-                return string.Join(SplitSymbol,
+                return string.Join(splitSymbol,
                     selectedItems.Select(item => PropertyPathHelper.GetObjectByPropertyPath(item, displayMemberPath)));
             }
 

@@ -24,8 +24,8 @@
             ItemsSource="{Binding Items}"
             SelectedItems="{Binding SelectedItems}"
             DisplayMemberPath="Name"
-            SelectedValue="Meieeeeeee"
             SelectedValuePath="Name"
+            SelectedValue="Meieeeeeee"
             SelectionMode="{Binding Mode}"
             SelectItemByCheckBox = "True">
             <controls:MultiSelectTreeView.ContextMenu>

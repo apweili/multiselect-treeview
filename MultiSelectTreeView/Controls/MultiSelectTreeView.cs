@@ -66,7 +66,7 @@ namespace System.Windows.Controls
 
         public static readonly DependencyProperty SelectionModeProperty = DependencyProperty.Register(
             "SelectionMode", typeof(TreeViewSelectionMode), typeof(MultiSelectTreeView),
-            new FrameworkPropertyMetadata(TreeViewSelectionMode.MultiSelectEnabled, FrameworkPropertyMetadataOptions.None,
+            new FrameworkPropertyMetadata(TreeViewSelectionMode.SingleSelectOnly, FrameworkPropertyMetadataOptions.None,
                 OnSelectionModeChanged));
 
         #endregion
@@ -180,6 +180,11 @@ namespace System.Windows.Controls
         {
             base.OnApplyTemplate();
             Popup = (Popup)GetTemplateChild(ContentPopupName);
+            if (Selection == null)
+            {
+                Selection = GetSelectionStrategyByMode(this, SelectionMode);
+            }
+
             Selection.ApplyTemplate();
         }
 
@@ -434,27 +439,32 @@ namespace System.Windows.Controls
                 treeView.Selection.PreviewSelectionChanged -= treeView.PreviewSelectionChangedHandler;
             }
 
-            switch ((TreeViewSelectionMode)e.NewValue)
-            {
-                case TreeViewSelectionMode.MultiSelectEnabled:
-                    treeView.Selection = new SelectionMultiple(treeView);
-                    break;
-                case TreeViewSelectionMode.SingleSelectOnly:
-                    treeView.Selection = new SelectionSingle(treeView);
-                    break;
-            }
-
-            if (treeView.Selection != null)
-            {
-                treeView.Selection.PreviewSelectionChanged += treeView.PreviewSelectionChangedHandler;
-            }
-
+            treeView.Selection = GetSelectionStrategyByMode(treeView, (TreeViewSelectionMode)e.NewValue);
             var defaultSelectedItem = treeView.InternalSelectedItems.OfType<object>().LastOrDefault();
             treeView.UnSelectAllItem();
             if (defaultSelectedItem != null)
             {
                 treeView.SelectItem(defaultSelectedItem);
             }
+        }
+
+        private static ISelectionStrategy GetSelectionStrategyByMode(MultiSelectTreeView treeView, TreeViewSelectionMode mode)
+        {
+            ISelectionStrategy selectionStrategy;
+            switch (mode)
+            {
+                case TreeViewSelectionMode.MultiSelectEnabled:
+                    selectionStrategy  = new SelectionMultiple(treeView);
+                    break;
+                case TreeViewSelectionMode.SingleSelectOnly:
+                    selectionStrategy  = new SelectionSingle(treeView);
+                    break;
+                default:
+                    throw new ArgumentException(); 
+            }
+
+            selectionStrategy.PreviewSelectionChanged += treeView.PreviewSelectionChangedHandler;
+            return selectionStrategy;
         }
 
         private void PreviewSelectionChangedHandler(object sender, PreviewSelectionChangedEventArgs e)
