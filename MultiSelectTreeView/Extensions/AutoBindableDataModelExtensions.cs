@@ -73,5 +73,19 @@ namespace System.Windows.Extensions
         {
             container.Remarks = modelWithImageSource.ImageSource;
         }
+        
+        private static IEnumerable<IAutoBindExpandableModel> GetParentFromTopToCurrent(IAutoBindExpandableModel node)
+        {
+            var parents = new List<IAutoBindExpandableModel>();
+            var parent = node.Parent;
+            while (parent != null)
+            {
+                parents.Add(parent);
+                parent = parent.Parent;
+            }
+
+            parents.Reverse();
+            return parents;
+        }
     }
 }

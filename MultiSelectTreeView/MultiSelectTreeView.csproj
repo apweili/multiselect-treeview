@@ -153,6 +153,7 @@
     <Compile Include="Converters\ThicknessLeftConverter.cs" />
     <Compile Include="Enums\SelectionCheckState.cs" />
     <Compile Include="Extensions\AutoBindableDataModelExtensions.cs" />
+    <Compile Include="Extensions\MultiSelectTreeItemExtensions.cs" />
     <Compile Include="Helpers\AutoBindHelper.cs" />
     <Compile Include="Helpers\PropertyPathHelper.cs" />
     <Compile Include="Models\IAutoBindExpandableModel.cs" />
