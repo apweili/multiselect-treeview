@@ -441,14 +441,29 @@ namespace System.Windows.Controls
         {
             try
             {
-                IsUpdatingSelectedItems = true;
+                BeginSelect();
                 SyncExternalSelectedItems(e);
                 OnInternalSelectedItemsChangedCore(e);
             }
             finally
             {
-                IsUpdatingSelectedItems = false;
+                EndSelect();
             }
+        }
+
+        private void BeginSelect()
+        {
+            IsUpdatingSelectedItems = true; 
+        }
+
+        private void EndSelect()
+        {
+            IsUpdatingSelectedItems = false; 
+        }
+
+        private bool IsSelecting()
+        {
+            return IsUpdatingSelectedItems;
         }
 
         // this eventhandler reacts on the firing control to, in order to update the own status
@@ -580,7 +595,7 @@ namespace System.Windows.Controls
 
         private void SelectItemInMultiSelectionMode(object item)
         {
-            if (IsUpdatingSelectedItems)
+            if (IsSelecting())
             {
                 return;
             }
@@ -595,7 +610,7 @@ namespace System.Windows.Controls
 
         private void SelectItemInSingleSelectionMode(object item)
         {
-            if (IsUpdatingSelectedItems)
+            if (IsSelecting())
             {
                 return;
             }
@@ -606,7 +621,7 @@ namespace System.Windows.Controls
 
         internal void UnSelectItem(object item)
         {
-            if (IsUpdatingSelectedItems)
+            if (IsSelecting())
             {
                 return;
             }
@@ -622,7 +637,7 @@ namespace System.Windows.Controls
 
         private void UnSelectAllItem()
         {
-            if (IsUpdatingSelectedItems)
+            if (IsSelecting())
             {
                 return;
             }
