@@ -152,7 +152,7 @@
     <Compile Include="Converters\SelectionBoxItemValueConverter.cs" />
     <Compile Include="Converters\ThicknessLeftConverter.cs" />
     <Compile Include="Enums\SelectionCheckState.cs" />
-    <Compile Include="Extensions\ConvenientBindableDataModelExtensions.cs" />
+    <Compile Include="Extensions\AutoBindableDataModelExtensions.cs" />
     <Compile Include="Helpers\AutoBindHelper.cs" />
     <Compile Include="Helpers\PropertyPathHelper.cs" />
     <Compile Include="Models\IAutoBindExpandableModel.cs" />

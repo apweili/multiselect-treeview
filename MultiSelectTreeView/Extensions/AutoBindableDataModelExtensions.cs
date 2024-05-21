@@ -7,7 +7,7 @@ using System.Windows.Models;
 
 namespace System.Windows.Extensions
 {
-    internal static class ConvenientBindableDataModelExtensions
+    internal static class AutoBindableDataModelExtensions
     {
         public static void BindExpandableToContainer(this IAutoBindExpandableModel autoBindExpandableModel,
             MultiSelectTreeViewItem container)
