@@ -53,7 +53,7 @@ namespace System.Windows.Controls
 
         private static object CoerceSelectedItem(DependencyObject d, object baseValue)
         {
-            var treeView = (ItemsControl)d;
+            var treeView = d as MultiSelectTreeView;
             if (treeView == null)
             {
                 return DependencyProperty.UnsetValue;
@@ -64,7 +64,7 @@ namespace System.Windows.Controls
                 return baseValue;
             }
 
-            return treeView.Items.Contains(baseValue) ? baseValue : DependencyProperty.UnsetValue;
+            return treeView.IsItemIncludedInSource(baseValue) ? baseValue : DependencyProperty.UnsetValue;
         }
 
         private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -661,6 +661,13 @@ namespace System.Windows.Controls
             }
 
             InternalSelectedItems.Clear();
+        }
+
+        private bool IsItemIncludedInSource(object item)
+        {
+            return item is IAutoBindExpandableModel
+                ? GetAllItemsByAutoBindExpandableModel().Any(m => m == item)
+                : Items.Contains(item);
         }
 
         internal bool IsItemSelected(object item)
