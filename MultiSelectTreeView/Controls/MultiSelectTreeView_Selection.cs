@@ -539,52 +539,43 @@ namespace System.Windows.Controls
 
         internal void SelectItem(object item)
         {
+            if (IsSelecting() || IsItemSelected(item))
+            {
+                return;
+            }
+            
             var autoBindableModel = item as IAutoBindExpandableModel;
             if (autoBindableModel != null)
             {
-                var selectedItems = autoBindableModel.Selected().ToList();
+                var selectedItems = autoBindableModel.UpdateStateAfterSelect().ToList();
                 if (selectedItems.Count == 1)
                 {
                     item = selectedItems[0];
                 }
                 else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
                 {
-                    SelectItems(selectedItems);
+                    foreach (var leafItems in selectedItems)
+                    {
+                        InternalSelectedItems.Add(leafItems);
+                    }
                     return;
                 }
             }
             
             if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
-                SelectItemInSingleSelectionMode(item);
+                InternalSelectedItems.Clear();
+                InternalSelectedItems.Add(item);
                 return;
             }
 
-            SelectItemInMultiSelectionMode(item);
-        }
-
-        internal void SelectItems(IEnumerable items)
-        {
-            if (SelectionMode != TreeViewSelectionMode.MultiSelectEnabled)
-            {
-                return;
-            }
-
-            foreach (var item in items)
-            {
-                SelectItem(item);
-            }
+            InternalSelectedItems.Add(item);
         }
 
         private void SelectItemByIndex(int index)
         {
             Contract.Assert(index < Items.Count, "index < Items.Count");
-            UnSelectAllItem();
-            if (index < 0)
-            {
-                return;
-            }
-
+            Contract.Assert(index > 0, "index > 0");
             SelectItem(Items[index]);
         }
 
@@ -621,40 +612,6 @@ namespace System.Windows.Controls
                                                     PropertyPathHelper.GetObjectByPropertyPath(item,
                                                         valuePath)));
         }
-
-        private void SelectItemInMultiSelectionMode(object item)
-        {
-            if (IsSelecting())
-            {
-                return;
-            }
-
-            if (IsItemSelected(item))
-            {
-                return;
-            }
-
-            InternalSelectedItems.Add(item);
-        }
-
-        private void SelectItemInSingleSelectionMode(object item)
-        {
-            if (IsSelecting())
-            {
-                return;
-            }
-
-            InternalSelectedItems.Clear();
-            InternalSelectedItems.Add(item);
-        }
-
-        private void UnSelectItems(IEnumerable items)
-        {
-            foreach (var item in items)
-            {
-                UnSelectItem(item);
-            }
-        }
         
         internal void UnSelectItem(object item)
         {
@@ -666,18 +623,26 @@ namespace System.Windows.Controls
             var autoBindableModel = item as IAutoBindExpandableModel;
             if (autoBindableModel != null)
             {
-                var selectedItems = autoBindableModel.Selected().ToList();
-                if (selectedItems.Count == 1)
+                var unSelectedItems = autoBindableModel.UpdateStateAfterUnSelect().ToList();
+                if (unSelectedItems.Count == 1)
                 {
-                    item = selectedItems[0];
+                    item = unSelectedItems[0];
                 }
                 else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
                 {
-                    UnSelectItems(selectedItems);
+                    foreach (var leafItems in unSelectedItems)
+                    {
+                        UnSelectItemCore(leafItems);
+                    }
                     return;
                 }
             }
 
+            UnSelectItemCore(item);
+        }
+
+        private void UnSelectItemCore(object item)
+        {
             var index = InternalSelectedItems.IndexOf(item);
             if (index < 0)
             {
@@ -686,6 +651,7 @@ namespace System.Windows.Controls
 
             InternalSelectedItems.RemoveAt(index);
         }
+        
 
         private void UnSelectAllItem()
         {

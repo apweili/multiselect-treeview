@@ -44,42 +44,65 @@ namespace Demo
                     var familyOne = new FamilyProfiles()
                     {
                         Name = "Li",
-                        Children = new List<IAutoBindExpandableModel>
+                    };
+                    familyOne.Children = new List<IAutoBindExpandableModel>
+                    {
+                        new FamilyProfiles(familyOne)
                         {
-                            new FamilyProfiles()
-                            {
-                                Name = "Wei"
-                            }
+                            Name = "Wei"
                         }
                     };
+
                     var familyTwo = new FamilyProfiles()
                     {
                         Name = "Zha",
-                        Children = new List<IAutoBindExpandableModel>
+                    };
+                    familyTwo.Children = new List<IAutoBindExpandableModel>
+                    {
+                        new FamilyProfiles(familyTwo)
                         {
-                            new FamilyProfiles()
-                            {
-                                Name = "June"
-                            }
+                            Name = "June"
                         }
                     };
                     
                     var familyThree = new FamilyProfiles()
                     {
                         Name = "Zha",
-                        Children = new List<IAutoBindExpandableModel>
+                    };
+
+                    familyThree.Children = new List<IAutoBindExpandableModel>
+                    {
+                        new FamilyProfiles(familyThree)
                         {
-                            new FamilyProfiles()
-                            {
-                                Name = "Qioa",
-                                Children = new List<IAutoBindExpandableModel>()
-                                {
-                                    new FamilyProfiles()
-                                    {
-                                        Name = "Meieeeeeee"
-                                    }
-                                }
-                            }
+                            Name = "Qioa",
+                        },
+                        new FamilyProfiles(familyThree)
+                        {
+                            Name = "Qioa",
+                        }
+                    };
+                    var firstChild = familyThree.Children.First() as FamilyProfiles;
+                    var secondChild = familyThree.Children.Skip(1).First() as FamilyProfiles;
+                    firstChild.Children = new List<IAutoBindExpandableModel>()
+                    {
+                        new FamilyProfiles(firstChild)
+                        {
+                            Name = "Meieeeeeee"
+                        },
+                        new FamilyProfiles(firstChild)
+                        {
+                            Name = "Maaaaaaaa"
+                        }
+                    };
+                    secondChild.Children = new List<IAutoBindExpandableModel>()
+                    {
+                        new FamilyProfiles(secondChild)
+                        {
+                            Name = "Meieeeeeee"
+                        },
+                        new FamilyProfiles(secondChild)
+                        {
+                            Name = "Maaaaaaaa"
                         }
                     };
                     

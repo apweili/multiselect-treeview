@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Enums;
 using System.Windows.Interfaces;
 using System.Windows.Models;
 
@@ -8,9 +9,15 @@ namespace Demo.ViewModel
 {
     public class FamilyProfiles : IAutoBindExpandableModel,  IAutoBindImageSourceModel, INotifyPropertyChanged
     {
+        private SelectionCheckState selectionCheckState;
         public string Name { get; set; }
-        public IAutoBindExpandableModel Parent { get; } = null;
+        public IAutoBindExpandableModel Parent { get; set; } 
         public IEnumerable<IAutoBindExpandableModel> Children { get; set; }
+
+        public FamilyProfiles(IAutoBindExpandableModel parent = null)
+        {
+            Parent = parent;
+        }
         
         private bool _isExpanded { get; set; }
 
@@ -23,6 +30,17 @@ namespace Demo.ViewModel
             set
             {
                 _isExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public SelectionCheckState SelectionCheckState
+        {
+            get => selectionCheckState;
+            set
+            {
+                if (value == selectionCheckState) return;
+                selectionCheckState = value;
                 OnPropertyChanged();
             }
         }
