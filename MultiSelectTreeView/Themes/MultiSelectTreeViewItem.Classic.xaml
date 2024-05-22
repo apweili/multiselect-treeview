@@ -193,7 +193,7 @@
                         <Trigger Property="SelectionCheckState" Value="PartSelected">
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="{x:Null}" />
                         </Trigger> 
-                        <Trigger Property="SelectionCheckState" Value="UnSelected">
+                        <Trigger Property="SelectionCheckState" Value="Deselected">
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="False" />
                         </Trigger>
                     </ControlTemplate.Triggers>

@@ -2,7 +2,7 @@
 {
     public enum SelectionCheckState
     {
-        UnSelected,
+        Deselected,
         PartSelected,
         FullSelected
     }

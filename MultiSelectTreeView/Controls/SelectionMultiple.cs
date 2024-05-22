@@ -120,7 +120,7 @@ namespace System.Windows.Controls
 				return false;
 			}
 
-			treeView.UnSelectItem(item.DataContext);
+			treeView.DeselectItem(item.DataContext);
 			if (item.DataContext == lastShiftRoot)
 			{
 				lastShiftRoot = null;
@@ -157,7 +157,7 @@ namespace System.Windows.Controls
 					}
 					if (!e.CancelThis)
 					{
-						treeView.UnSelectItem(selItem);
+						treeView.DeselectItem(selItem);
 					}
 				}
 				// Add new selected items
@@ -190,7 +190,7 @@ namespace System.Windows.Controls
 					}
 					if (!e2.CancelThis && !treeView.SelectItemByCheckBox)
 					{
-						treeView.UnSelectItem(selItem);
+						treeView.DeselectItem(selItem);
 					}
 				}
 				
@@ -381,7 +381,7 @@ namespace System.Windows.Controls
 			OnPreviewSelectionChanged(e);
 			if (e.CancelAny) return false;
 
-			treeView.UnSelectItem(item.DataContext);
+			treeView.DeselectItem(item.DataContext);
 			if (item.DataContext == lastShiftRoot)
 			{
 				lastShiftRoot = null;

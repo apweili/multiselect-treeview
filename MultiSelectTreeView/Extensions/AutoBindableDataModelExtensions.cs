@@ -24,21 +24,21 @@ namespace System.Windows.Extensions
             BindImageSource(modelWithImageSource, container);
         }
         
-        public static IEnumerable<IAutoBindExpandableModel> UpdateStateAfterUnSelect(this IAutoBindExpandableModel model)
+        public static IEnumerable<IAutoBindExpandableModel> UpdateStateAfterDeselect(this IAutoBindExpandableModel model)
         {
-            if (model.SelectionCheckState == SelectionCheckState.UnSelected)
+            if (model.SelectionCheckState == SelectionCheckState.Deselected)
             {
                 return new List<IAutoBindExpandableModel>();
             }
             
-            model.SelectionCheckState = SelectionCheckState.UnSelected;
+            model.SelectionCheckState = SelectionCheckState.Deselected;
             UpdateParentToRoot(model);
-            return TravarseToLevelNodeWithAction(model, UnSelect);
+            return TravarseToLevelNodeWithAction(model, Deselect);
         }
         
-        private static void UnSelect(IAutoBindExpandableModel model)
+        private static void Deselect(IAutoBindExpandableModel model)
         {
-            model.SelectionCheckState = SelectionCheckState.UnSelected;
+            model.SelectionCheckState = SelectionCheckState.Deselected;
         }
 
         public static IEnumerable<IAutoBindExpandableModel> UpdateStateAfterSelect(this IAutoBindExpandableModel model)
@@ -70,14 +70,14 @@ namespace System.Windows.Extensions
 
             var childrenTotalCount = parent.Children.Count();
             var selectedItemsCount = parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.FullSelected);
-            var deselectedStateItemsCount = parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.UnSelected);
+            var deselectedStateItemsCount = parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.Deselected);
             if (childrenTotalCount == selectedItemsCount)
             {
                 parent.SelectionCheckState = SelectionCheckState.FullSelected;
             }
             else if (deselectedStateItemsCount == childrenTotalCount)
             {
-                parent.SelectionCheckState = SelectionCheckState.UnSelected;
+                parent.SelectionCheckState = SelectionCheckState.Deselected;
             }
             else
             {

@@ -588,7 +588,7 @@ namespace System.Windows.Controls
             }
 
             var lastSelectedItem = InternalSelectedItems.Count > 0 ? InternalSelectedItems.Last() : null;
-            UnSelectAllItem();
+            DeselectAllItem();
             if (selectedItem != null)
             {
                 SelectItem(selectedItem);
@@ -613,7 +613,7 @@ namespace System.Windows.Controls
                                                         valuePath)));
         }
         
-        internal void UnSelectItem(object item)
+        internal void DeselectItem(object item)
         {
             if (IsSelecting())
             {
@@ -623,25 +623,25 @@ namespace System.Windows.Controls
             var autoBindableModel = item as IAutoBindExpandableModel;
             if (autoBindableModel != null)
             {
-                var unSelectedItems = autoBindableModel.UpdateStateAfterUnSelect().ToList();
-                if (unSelectedItems.Count == 1)
+                var deselectedItems = autoBindableModel.UpdateStateAfterDeselect().ToList();
+                if (deselectedItems.Count == 1)
                 {
-                    item = unSelectedItems[0];
+                    item = deselectedItems[0];
                 }
                 else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
                 {
-                    foreach (var leafItems in unSelectedItems)
+                    foreach (var leafItems in deselectedItems)
                     {
-                        UnSelectItemCore(leafItems);
+                        DeselectItemCore(leafItems);
                     }
                     return;
                 }
             }
 
-            UnSelectItemCore(item);
+            DeselectItemCore(item);
         }
 
-        private void UnSelectItemCore(object item)
+        private void DeselectItemCore(object item)
         {
             var index = InternalSelectedItems.IndexOf(item);
             if (index < 0)
@@ -653,7 +653,7 @@ namespace System.Windows.Controls
         }
         
 
-        private void UnSelectAllItem()
+        private void DeselectAllItem()
         {
             if (IsSelecting())
             {

@@ -203,7 +203,7 @@ namespace System.Windows.Controls
                     }
                 }
 
-                UnSelectAllItem();
+                DeselectAllItem();
             }
 
             return true;
@@ -349,7 +349,7 @@ namespace System.Windows.Controls
                 if (e.CancelAny) return false;
             }
 
-            UnSelectAllItem();
+            DeselectAllItem();
             return true;
         }
 
@@ -441,7 +441,7 @@ namespace System.Windows.Controls
 
             treeView.Selection = GetSelectionStrategyByMode(treeView, (TreeViewSelectionMode)e.NewValue);
             var defaultSelectedItem = treeView.InternalSelectedItems.OfType<object>().LastOrDefault();
-            treeView.UnSelectAllItem();
+            treeView.DeselectAllItem();
             if (defaultSelectedItem != null)
             {
                 treeView.SelectItem(defaultSelectedItem);

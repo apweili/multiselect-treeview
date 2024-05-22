@@ -52,7 +52,7 @@ namespace System.Windows.Controls
 				}
 				if (!e2.CancelThis)
 				{
-					treeView.UnSelectItem(selItem);
+					treeView.DeselectItem(selItem);
 				}
 			}
 			
@@ -75,7 +75,7 @@ namespace System.Windows.Controls
 			OnPreviewSelectionChanged(e);
 			if (e.CancelAny) return false;
 
-			treeView.UnSelectItem(item.DataContext);
+			treeView.DeselectItem(item.DataContext);
 			FocusHelper.Focus(item, bringIntoView);
 			return true;
 		}

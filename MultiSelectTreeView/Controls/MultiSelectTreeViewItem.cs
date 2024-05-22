@@ -436,7 +436,7 @@ namespace System.Windows.Controls
                 }
                 else
                 {
-                    item.ParentTreeView.UnSelectItem(item.DataContext);
+                    item.ParentTreeView.DeselectItem(item.DataContext);
                 }
             }
         }
@@ -504,7 +504,7 @@ namespace System.Windows.Controls
                 {
                     foreach (var item in oldValue)
                     {
-                        parentTV.UnSelectItem(item);
+                        parentTV.DeselectItem(item);
                         var multiselection = parentTV.Selection as SelectionMultiple;
                         if (multiselection != null)
                         {
@@ -749,7 +749,7 @@ namespace System.Windows.Controls
                     {
                         foreach (var item in e.OldItems)
                         {
-                            parentTV.UnSelectItem(item);
+                            parentTV.DeselectItem(item);
                             var multiselection = parentTV.Selection as SelectionMultiple;
                             if (multiselection != null)
                             {
