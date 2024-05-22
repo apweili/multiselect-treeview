@@ -346,20 +346,22 @@
                           BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="2"
                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                           Style="{StaticResource MultiSelectTreeViewToggleButton}" />
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal"
+                        Margin="{TemplateBinding Padding}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}">
                 <ContentPresenter x:Name="contentRemarks"
                                   Content="{TemplateBinding SelectionBoxItem}"
                                   Visibility="Collapsed"
-                                  SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"/>
+                                  SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
+                                  IsHitTestVisible="false" />
                 <ContentPresenter x:Name="contentPresenter"
                                   ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
                                   ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                   Content="{TemplateBinding SelectionBoxItem}"
                                   ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  IsHitTestVisible="false" Margin="{TemplateBinding Padding}"
-                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                  IsHitTestVisible="false"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
             </StackPanel>
         </Grid>
         <ControlTemplate.Triggers>
@@ -388,12 +390,12 @@
                 <Setter Property="ContentTemplate" TargetName="contentRemarks">
                     <Setter.Value>
                         <DataTemplate>
-                            <Image Source="{Binding ImageSource}">
+                            <Image Source="{Binding ImageSource}" Focusable="False" Margin="0,0,2,0">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding }" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

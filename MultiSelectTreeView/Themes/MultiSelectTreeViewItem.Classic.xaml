@@ -85,12 +85,12 @@
         <Setter Property="RemarksTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <Image Source="{Binding }" Focusable="False">
+                    <Image Source="{Binding }" Focusable="False" Margin="0,0,2,0">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding }" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -146,7 +146,7 @@
                                 </Border>
                             </Grid>
                         </StackPanel>
-                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"  />
+                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
@@ -184,7 +184,7 @@
                                 <Condition Property="HasItems" Value="True" />
                                 <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Grid.Column" TargetName="Expander" Value= "1" />
+                            <Setter Property="Grid.Column" TargetName="Expander" Value="1" />
                             <Setter Property="Grid.Column" TargetName="ContentStackPanel" Value="2" />
                         </MultiTrigger>
                         <Trigger Property="SelectionCheckState" Value="FullSelected">
@@ -192,7 +192,7 @@
                         </Trigger>
                         <Trigger Property="SelectionCheckState" Value="PartSelected">
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="{x:Null}" />
-                        </Trigger> 
+                        </Trigger>
                         <Trigger Property="SelectionCheckState" Value="Deselected">
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="False" />
                         </Trigger>
