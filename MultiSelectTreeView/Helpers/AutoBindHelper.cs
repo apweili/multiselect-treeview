@@ -26,6 +26,12 @@ namespace System.Windows.Helpers
             {
                 modelWithImageSource.BindImageSourceToContainer(itemContainerControl);
             }
+
+            var bindingProvider = viewModel as IAutoBindingsProvider;
+            if (bindingProvider != null)
+            {
+                bindingProvider.AddBindingsToContainer(itemContainerControl);
+            }
         }
     }
 }

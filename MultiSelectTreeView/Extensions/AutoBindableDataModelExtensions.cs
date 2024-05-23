@@ -21,7 +21,17 @@ namespace System.Windows.Extensions
         public static void BindImageSourceToContainer(this IAutoBindImageSourceModel modelWithImageSource,
             MultiSelectTreeViewItem container)
         {
-            BindImageSource(modelWithImageSource, container);
+            container.Remarks = modelWithImageSource.ImageSource;
+        }
+        
+        public static void AddBindingsToContainer(this IAutoBindingsProvider bindingsProvider,
+            MultiSelectTreeViewItem container)
+        {
+            var bindingInfos = bindingsProvider.GetBindingInfos;
+            foreach (var bindingInfo in bindingInfos)
+            {
+                container.SetBinding(bindingInfo.DependencyProperty, bindingInfo.Binding);
+            }
         }
         
         public static IEnumerable<IAutoBindExpandableModel> UpdateStateAfterDeselect(this IAutoBindExpandableModel model)
@@ -137,12 +147,6 @@ namespace System.Windows.Extensions
                 Mode = BindingMode.OneWay
             };
             container.SetBinding(MultiSelectTreeViewItem.SelectionCheckStateProperty, bindingForExpand);
-        }
-
-        private static void BindImageSource(IAutoBindImageSourceModel modelWithImageSource,
-            MultiSelectTreeViewItem container)
-        {
-            container.Remarks = modelWithImageSource.ImageSource;
         }
         
         private static IEnumerable<IAutoBindExpandableModel> GetParentFromTopToCurrent(IAutoBindExpandableModel node)

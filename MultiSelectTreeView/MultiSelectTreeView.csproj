@@ -158,6 +158,7 @@
     <Compile Include="Helpers\PropertyPathHelper.cs" />
     <Compile Include="Models\IAutoBindExpandableModel.cs" />
     <Compile Include="Models\IAutoBindImageSourceModel.cs" />
+    <Compile Include="Models\IAutoBindingsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
