@@ -469,10 +469,10 @@ namespace System.Windows.Controls
                 // (If one resists, don't collapse)
                 if ((bool)e.NewValue == false)
                 {
-                    if (!ParentTreeView.DeselectRecursive(this, false))
-                    {
-                        IsExpanded = true;
-                    }
+                    // if (!ParentTreeView.DeselectRecursive(this, false))
+                    // {
+                    //     IsExpanded = true;
+                    // }
                 }
             }
 
@@ -480,13 +480,14 @@ namespace System.Windows.Controls
             {
                 // Deselect invisible item and its children
                 // (If one resists, don't hide)
-                if ((bool)e.NewValue == false)
-                {
-                    if (!ParentTreeView.DeselectRecursive(this, true))
-                    {
-                        IsVisible = true;
-                    }
-                }
+                
+                // if ((bool)e.NewValue == false)
+                // {
+                //     if (!ParentTreeView.DeselectRecursive(this, true))
+                //     {
+                //         IsVisible = true;
+                //     }
+                // }
             }
 
             base.OnPropertyChanged(e);

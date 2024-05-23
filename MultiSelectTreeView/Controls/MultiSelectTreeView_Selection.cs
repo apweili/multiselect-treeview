@@ -539,7 +539,7 @@ namespace System.Windows.Controls
 
         internal void SelectItem(object item)
         {
-            if (IsSelecting() || IsItemSelected(item))
+            if (IsItemSelected(item))
             {
                 return;
             }
@@ -554,10 +554,11 @@ namespace System.Windows.Controls
                 }
                 else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
                 {
-                    foreach (var leafItems in selectedItems)
+                    foreach (var leafItem in selectedItems)
                     {
-                        InternalSelectedItems.Add(leafItems);
+                        AddItemWithProtection(leafItem);
                     }
+                    
                     return;
                 }
             }
@@ -565,11 +566,9 @@ namespace System.Windows.Controls
             if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
                 DeselectAllItem();
-                InternalSelectedItems.Add(item);
-                return;
             }
-
-            InternalSelectedItems.Add(item);
+            
+            AddItemWithProtection(item);
         }
 
         private void SelectItemByIndex(int index)
@@ -615,14 +614,9 @@ namespace System.Windows.Controls
         
         internal void DeselectAllItem()
         {
-            if (IsSelecting())
-            {
-                return;
-            }
-            
             if (InternalSelectedItems.Count == 0)
             {
-                InternalSelectedItems.Clear(); //trigger event
+                ClearWithProtection();    //trigger event
                 return;
             }
             
@@ -634,7 +628,7 @@ namespace System.Windows.Controls
         
         internal void DeselectItem(object item)
         {
-            if (IsSelecting())
+            if (!IsItemSelected(item))
             {
                 return;
             }
@@ -651,26 +645,14 @@ namespace System.Windows.Controls
                 {
                     foreach (var leafItems in deselectedItems)
                     {
-                        DeselectItemCore(leafItems);
+                        RemoveItemWithProtection(leafItems);
                     }
                     return;
                 }
             }
 
-            DeselectItemCore(item);
+            RemoveItemWithProtection(item);
         }
-
-        private void DeselectItemCore(object item)
-        {
-            var index = InternalSelectedItems.IndexOf(item);
-            if (index < 0)
-            {
-                return;
-            }
-
-            InternalSelectedItems.RemoveAt(index);
-        }
-
 
         private bool IsItemIncludedInSource(object item)
         {
@@ -791,6 +773,42 @@ namespace System.Windows.Controls
             }
 
             SelectionBoxItemTemplate = SelectionBoxItemDataTemplate;
+        }
+
+        private void AddItemWithProtection(object item)
+        {
+            if (IsSelecting())
+            {
+                return;
+            }
+
+            InternalSelectedItems.Add(item);
+        }
+        
+        private void RemoveItemWithProtection(object item)
+        {
+            if (IsSelecting())
+            {
+                return;
+            }
+            
+            var index = InternalSelectedItems.IndexOf(item);
+            if (index < 0)
+            {
+                return;
+            }
+
+            InternalSelectedItems.RemoveAt(index);
+        }
+
+        private void ClearWithProtection()
+        {
+            if (IsSelecting())
+            {
+                return;
+            }
+            
+            InternalSelectedItems.Clear();
         }
 
         private bool IsSelectionBoxItemIncludeImageSource(object selectionBoxItem)
