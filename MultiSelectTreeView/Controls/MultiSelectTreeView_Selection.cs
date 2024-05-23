@@ -349,7 +349,7 @@ namespace System.Windows.Controls
             }
 
             var externalSelectedItems = SelectedItems.OfType<object>().ToList();
-            InternalSelectedItems.Clear();
+            DeselectAllItem();
             foreach (var item in externalSelectedItems)
             {
                 SelectItem(item);
@@ -564,7 +564,7 @@ namespace System.Windows.Controls
             
             if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
-                InternalSelectedItems.Clear();
+                DeselectAllItem();
                 InternalSelectedItems.Add(item);
                 return;
             }
@@ -613,6 +613,25 @@ namespace System.Windows.Controls
                                                         valuePath)));
         }
         
+        internal void DeselectAllItem()
+        {
+            if (IsSelecting())
+            {
+                return;
+            }
+            
+            if (InternalSelectedItems.Count == 0)
+            {
+                InternalSelectedItems.Clear(); //trigger event
+                return;
+            }
+            
+            foreach (var selectedItem in InternalSelectedItems.Cast<object>().ToList())
+            {
+                DeselectItem(selectedItem);
+            }
+        }
+        
         internal void DeselectItem(object item)
         {
             if (IsSelecting())
@@ -651,17 +670,7 @@ namespace System.Windows.Controls
 
             InternalSelectedItems.RemoveAt(index);
         }
-        
 
-        private void DeselectAllItem()
-        {
-            if (IsSelecting())
-            {
-                return;
-            }
-
-            InternalSelectedItems.Clear();
-        }
 
         private bool IsItemIncludedInSource(object item)
         {
@@ -750,7 +759,7 @@ namespace System.Windows.Controls
                 SelectedValue = null;
             }
 
-            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
+            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly && selectedItem != null )
             {
                 IsDropDownOpen = false;
             }

@@ -482,7 +482,7 @@ namespace System.Windows.Controls
                     {
                         foreach (var item in e.OldItems)
                         {
-                            InternalSelectedItems.Remove(item);
+                            DeselectItem(item);
                             // Don't preview and ask, it is already gone so it must be removed from
                             // the SelectedItems list
                         }
@@ -492,7 +492,7 @@ namespace System.Windows.Controls
                 case NotifyCollectionChangedAction.Reset:
                     // If the items list has considerably changed, the selection is probably
                     // useless anyway, clear it entirely.
-                    InternalSelectedItems.Clear();
+                    DeselectAllItem();
                     break;
             }
 
