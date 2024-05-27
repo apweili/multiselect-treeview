@@ -653,9 +653,15 @@ namespace System.Windows.Controls
         
         internal IEnumerable<object> GetAllItems()
         {
-            if (Items.Cast<object>().All(item => item is IAutoBindExpandableModel))
+            var dataItems = Items.Cast<object>().ToList();
+            if (dataItems.All(item => item is IAutoBindExpandableModel))
             {
                 return GetAllItemsByAutoBindExpandableModel();
+            }
+
+            if (dataItems.Any(item => ItemContainerGenerator.ContainerFromItem(item) == null))
+            {
+                return dataItems;
             }
 
             return GetAllItemsByTreeViewItem();
