@@ -138,17 +138,17 @@ namespace System.Windows.Controls
             private set { SetValue(SelectionBoxItemPropertyKey, value); }
         }
         
-        private static readonly DependencyPropertyKey IsSelectionBoxItemIncludingRemarkPropertyKey =
-            DependencyProperty.RegisterReadOnly("IsSelectionBoxItemIncludingRemark", typeof(bool), typeof(MultiSelectTreeView),
+        private static readonly DependencyPropertyKey IsIncludeRemarkPropertyKey =
+            DependencyProperty.RegisterReadOnly("IsIncludeRemark", typeof(bool), typeof(MultiSelectTreeView),
                 new FrameworkPropertyMetadata(false));
         
-        public static readonly DependencyProperty IsSelectionBoxItemIncludingRemarkProperty =
-            IsSelectionBoxItemIncludingRemarkPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty IsIncludeRemarkProperty =
+            IsIncludeRemarkPropertyKey.DependencyProperty;
         
-        public bool IsSelectionBoxItemIncludingRemark
+        public bool IsIncludeRemark
         {
-            get { return (bool)GetValue(IsSelectionBoxItemIncludingRemarkProperty); }
-            private set { SetValue(IsSelectionBoxItemIncludingRemarkPropertyKey, value); }
+            get { return (bool)GetValue(IsIncludeRemarkProperty); }
+            private set { SetValue(IsIncludeRemarkPropertyKey, value); }
         }
 
         /// <summary>

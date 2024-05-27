@@ -385,7 +385,7 @@
                 <Setter Property="Canvas.Left" TargetName="opaqueRect"
                         Value="{Binding HorizontalOffset, ElementName=DropDownScrollViewer}" />
             </Trigger>
-            <Trigger Property="IsSelectionBoxItemIncludingRemark" Value="True">
+            <Trigger Property="IsIncludeRemark" Value="True">
                 <Setter Property="Visibility" TargetName="contentRemarks" Value="Visible" />
                 <Setter Property="ContentTemplate" TargetName="contentRemarks">
                     <Setter.Value>

@@ -761,9 +761,9 @@ namespace System.Windows.Controls
             else
             {
                 SelectionBoxItem = internalSelectedItems.FirstOrDefault();
-                if (IsSelectionBoxItemIncludeImageSource(SelectionBoxItem))
+                if (IsIncludeImageSource(SelectionBoxItem))
                 {
-                    IsSelectionBoxItemIncludingRemark = true;
+                    IsIncludeRemark = true;
                 }
             }
 
@@ -811,7 +811,7 @@ namespace System.Windows.Controls
             InternalSelectedItems.Clear();
         }
 
-        private bool IsSelectionBoxItemIncludeImageSource(object selectionBoxItem)
+        private bool IsIncludeImageSource(object selectionBoxItem)
         {
             if (selectionBoxItem == null)
             {
