@@ -320,7 +320,10 @@ namespace System.Windows.Controls
                 return;
             }
 
-            treeView.SelectItemByIndex((int)e.NewValue);
+            if ((int)e.NewValue >= 0)
+            {
+                treeView.SelectItemByIndex((int)e.NewValue); 
+            }
         }
 
         private static object CoerceSelectedIndex(DependencyObject d, object baseValue)
@@ -628,11 +631,6 @@ namespace System.Windows.Controls
         
         internal void DeselectItem(object item)
         {
-            if (!IsItemSelected(item))
-            {
-                return;
-            }
-            
             var autoBindableModel = item as IAutoBindExpandableModel;
             if (autoBindableModel != null)
             {
@@ -788,6 +786,11 @@ namespace System.Windows.Controls
         private void RemoveItemWithProtection(object item)
         {
             if (IsSelecting())
+            {
+                return;
+            }
+            
+            if (!IsItemSelected(item))
             {
                 return;
             }

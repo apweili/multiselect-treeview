@@ -27,7 +27,7 @@
             SelectedValuePath="Name"
             SelectedValue="Meieeeeeee"
             SelectionMode="{Binding Mode}"
-            SelectItemByCheckBox = "False">
+            SelectItemByCheckBox = "True">
             <controls:MultiSelectTreeView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Expand" Click="ExpandMenuItem_Click" />
