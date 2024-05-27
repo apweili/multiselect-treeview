@@ -5,6 +5,7 @@ using System.Windows.Enums;
 using System.Windows.Helpers;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Models;
 
 namespace System.Windows.Controls
 {
@@ -179,6 +180,11 @@ namespace System.Windows.Controls
         {
             MultiSelectTreeView parentTV = ParentTreeView;
             IsSelected = parentTV.IsItemSelected(this.DataContext);
+            var autoBindModel = DataContext as IAutoBindExpandableModel;
+            if (autoBindModel == null)
+            {
+                SelectionCheckState = IsSelected ? SelectionCheckState.FullSelected : SelectionCheckState.Deselected;
+            }
         }
 
         #endregion
@@ -329,7 +335,7 @@ namespace System.Windows.Controls
             set { SetValue(RemarksTemplateProperty, value); }
         }
 
-        public SelectionCheckState SelectionCheckState
+        internal SelectionCheckState SelectionCheckState
         {
             get { return (SelectionCheckState)GetValue(SelectionCheckStateProperty); }
             set { SetValue(SelectionCheckStateProperty, value); }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Controls.Primitives;
 using System.Windows.Converters;
 using System.Windows.Data;
+using System.Windows.Enums;
 using System.Windows.Extensions;
 using System.Windows.Helpers;
 using System.Windows.Interfaces;
@@ -547,37 +548,39 @@ namespace System.Windows.Controls
                 return;
             }
             
-            var autoBindableModel = item as IAutoBindExpandableModel;
-            if (autoBindableModel != null)
-            {
-                var selectedItems = autoBindableModel.UpdateStateAfterSelect().ToList();
-                if (selectedItems.Count == 1)
-                {
-                    item = selectedItems[0];
-                }
-                else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-                {
-                    foreach (var leafItem in selectedItems)
-                    {
-                        AddItemWithProtection(leafItem);
-                    }
-                    
-                    return;
-                }
-            }
-            
             if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
                 DeselectAllItem();
             }
-            
+
+            var autoBindableModel = item as IAutoBindExpandableModel;
+            if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            {
+                var selectedItems = autoBindableModel.UpdateStateAfterSelect().ToList();
+                foreach (var leafItem in selectedItems)
+                {
+                    AddItemWithProtection(leafItem);
+                }
+
+                return;
+            }
+
             AddItemWithProtection(item);
+            if (autoBindableModel != null)
+            {
+                autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
+                return;
+            }
+
+            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
+            if (container == null) return;
+            container.SelectionCheckState = SelectionCheckState.FullSelected;
         }
 
         private void SelectItemByIndex(int index)
         {
-            Contract.Assert(index < Items.Count, "index < Items.Count");
-            Contract.Assert(index > 0, "index > 0");
+            Contract.Assert(index < Items.Count, "index should be less than Items.Count");
+            Contract.Assert(index >= 0, "index should be greater or equal than 0");
             SelectItem(Items[index]);
         }
 
@@ -603,16 +606,33 @@ namespace System.Windows.Controls
         private object GetSelectedItemByValue(object selectedValue)
         {
             var valuePath = SelectedValuePath;
+            if (SelectedItem != null)
+            {
+                var currentSelectedValue = PropertyPathHelper.GetObjectByPropertyPath(SelectedItem,
+                    valuePath);
+                if (selectedValue.Equals(currentSelectedValue))
+                {
+                    return SelectedItem;
+                }
+            }
+            
             var items = GetAllItems();
+            IList itemsWithSelectedValue;
             if (string.IsNullOrEmpty(valuePath))
             {
-                return items.FirstOrDefault(selectedValue.Equals);
+                itemsWithSelectedValue = items.Where(selectedValue.Equals).ToList();
             }
 
-            return items.FirstOrDefault(item => item != null &&
-                                                selectedValue.Equals(
-                                                    PropertyPathHelper.GetObjectByPropertyPath(item,
-                                                        valuePath)));
+            itemsWithSelectedValue = items.Where(item => item != null &&
+                                                        selectedValue.Equals(
+                                                            PropertyPathHelper.GetObjectByPropertyPath(item,
+                                                                valuePath))).ToList();
+            // if (selectedValues.Count > 1)
+            // {
+            //     throw new InvalidOperationException("Repeat node");
+            // }
+
+            return itemsWithSelectedValue.Count == 0 ? null : itemsWithSelectedValue.First();
         }
         
         internal void DeselectAllItem()
@@ -632,24 +652,27 @@ namespace System.Windows.Controls
         internal void DeselectItem(object item)
         {
             var autoBindableModel = item as IAutoBindExpandableModel;
-            if (autoBindableModel != null)
+            if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
                 var deselectedItems = autoBindableModel.UpdateStateAfterDeselect().ToList();
-                if (deselectedItems.Count == 1)
+                foreach (var leafItems in deselectedItems)
                 {
-                    item = deselectedItems[0];
+                    RemoveItemWithProtection(leafItems);
                 }
-                else if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-                {
-                    foreach (var leafItems in deselectedItems)
-                    {
-                        RemoveItemWithProtection(leafItems);
-                    }
-                    return;
-                }
-            }
 
+                return;
+            }
+            
             RemoveItemWithProtection(item);
+            if (autoBindableModel != null)
+            {
+                autoBindableModel.SelectionCheckState = SelectionCheckState.Deselected;
+                return;
+            }
+            
+            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
+            if (container == null) return;
+            container.SelectionCheckState = SelectionCheckState.Deselected;
         }
 
         private bool IsItemIncludedInSource(object item)

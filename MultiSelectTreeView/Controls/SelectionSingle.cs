@@ -50,10 +50,6 @@ namespace System.Windows.Controls
 					FocusHelper.Focus(item);
 					return false;
 				}
-				if (!e2.CancelThis)
-				{
-					treeView.DeselectItem(selItem);
-				}
 			}
 			
 			var e = new PreviewSelectionChangedEventArgs(true, item.DataContext);
