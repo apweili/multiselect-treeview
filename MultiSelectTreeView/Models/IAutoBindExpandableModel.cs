@@ -8,6 +8,8 @@ namespace System.Windows.Models
         IAutoBindExpandableModel Parent { get; }
         IEnumerable<IAutoBindExpandableModel> Children { get; }
         bool IsExpanded { get; set; }
+        
+        //todo remove
         SelectionCheckState SelectionCheckState { get; set; }
     }
 }

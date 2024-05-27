@@ -138,6 +138,7 @@ namespace System.Windows.Controls
             private set { SetValue(SelectionBoxItemPropertyKey, value); }
         }
         
+        //todo refactor
         private static readonly DependencyPropertyKey IsIncludeRemarkPropertyKey =
             DependencyProperty.RegisterReadOnly("IsIncludeRemark", typeof(bool), typeof(MultiSelectTreeView),
                 new FrameworkPropertyMetadata(false));
