@@ -152,11 +152,6 @@ namespace System.Windows.Controls
             typeof(DataTemplate),
             typeof(MultiSelectTreeViewItem));
 
-        public static DependencyProperty ImageSourceProperty = DependencyProperty.Register(
-            "ImageSource",
-            typeof(object),
-            typeof(MultiSelectTreeViewItem));
-        
         public static DependencyProperty SelectionCheckStateProperty = DependencyProperty.Register(
             "SelectionCheckState",
             typeof(SelectionCheckState),
@@ -332,12 +327,6 @@ namespace System.Windows.Controls
         {
             get { return (DataTemplate)GetValue(RemarksTemplateProperty); }
             set { SetValue(RemarksTemplateProperty, value); }
-        }
-
-        public object ImageSource
-        {
-            get { return GetValue(ImageSourceProperty); }
-            set { SetValue(ImageSourceProperty, value); }
         }
 
         public SelectionCheckState SelectionCheckState
