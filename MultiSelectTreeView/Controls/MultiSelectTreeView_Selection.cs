@@ -65,6 +65,11 @@ namespace System.Windows.Controls
                 return baseValue;
             }
 
+            if (baseValue == null)
+            {
+                return null;
+            }
+
             return treeView.IsItemIncludedInSource(baseValue) ? baseValue : DependencyProperty.UnsetValue;
         }
 
@@ -213,12 +218,6 @@ namespace System.Windows.Controls
                 return;
             }
 
-            if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-            {
-                return;
-                // throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
-            }
-
             treeView.UpdateSelectedValueByPath(e.NewValue as string);
         }
 
@@ -276,12 +275,6 @@ namespace System.Windows.Controls
             if (!treeView.IsInitialized)
             {
                 return baseValue;
-            }
-
-            if (treeView.SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-            {
-                return null;
-                // throw new InvalidOperationException("SingleSelectOnly support SelectedValueProperty");
             }
 
             if (!treeView.TryToSelectItemByValue(baseValue))
@@ -541,42 +534,6 @@ namespace System.Windows.Controls
             OnSelectionChanged(selectionChangedEventArgs);
         }
 
-        internal void SelectItem(object item)
-        {
-            if (IsItemSelected(item))
-            {
-                return;
-            }
-            
-            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
-            {
-                DeselectAllItem();
-            }
-
-            var autoBindableModel = item as IAutoBindExpandableModel;
-            if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
-            {
-                var selectedItems = autoBindableModel.UpdateStateAfterSelect().ToList();
-                foreach (var leafItem in selectedItems)
-                {
-                    AddItemWithProtection(leafItem);
-                }
-
-                return;
-            }
-
-            AddItemWithProtection(item);
-            if (autoBindableModel != null)
-            {
-                autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
-                return;
-            }
-
-            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
-            if (container == null) return;
-            container.SelectionCheckState = SelectionCheckState.FullSelected;
-        }
-
         private void SelectItemByIndex(int index)
         {
             Contract.Assert(index < Items.Count, "index should be less than Items.Count");
@@ -622,15 +579,13 @@ namespace System.Windows.Controls
             {
                 itemsWithSelectedValue = items.Where(selectedValue.Equals).ToList();
             }
-
-            itemsWithSelectedValue = items.Where(item => item != null &&
-                                                        selectedValue.Equals(
-                                                            PropertyPathHelper.GetObjectByPropertyPath(item,
-                                                                valuePath))).ToList();
-            // if (selectedValues.Count > 1)
-            // {
-            //     throw new InvalidOperationException("Repeat node");
-            // }
+            else
+            {
+                itemsWithSelectedValue = items.Where(item => item != null &&
+                                                             selectedValue.Equals(
+                                                                 PropertyPathHelper.GetObjectByPropertyPath(item,
+                                                                     valuePath))).ToList();
+            }
 
             return itemsWithSelectedValue.Count == 0 ? null : itemsWithSelectedValue.First();
         }
@@ -647,6 +602,42 @@ namespace System.Windows.Controls
             {
                 DeselectItem(selectedItem);
             }
+        }
+        
+        internal void SelectItem(object item)
+        {
+            if (IsItemSelected(item))
+            {
+                return;
+            }
+            
+            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
+            {
+                DeselectAllItem();
+            }
+
+            var autoBindableModel = item as IAutoBindExpandableModel;
+            if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            {
+                var selectedItems = autoBindableModel.UpdateStateAfterSelect().ToList();
+                foreach (var leafItem in selectedItems)
+                {
+                    AddItemWithProtection(leafItem);
+                }
+
+                return;
+            }
+
+            AddItemWithProtection(item);
+            if (autoBindableModel != null)
+            {
+                autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
+                return;
+            }
+
+            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
+            if (container == null) return;
+            container.SelectionCheckState = SelectionCheckState.FullSelected;
         }
         
         internal void DeselectItem(object item)
@@ -750,21 +741,22 @@ namespace System.Windows.Controls
         {
             SelectedItem = selectedItem;
             UpdateSelectionBoxItem();
+            if (SelectionMode != TreeViewSelectionMode.SingleSelectOnly)
+            {
+                return;
+            }
+            
             if (selectedItem != null)
             {
                 SelectedIndex = Items.IndexOf(selectedItem);
                 SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem,
                     SelectedValuePath);
+                IsDropDownOpen = false;
             }
             else
             {
                 SelectedIndex = -1;
                 SelectedValue = null;
-            }
-
-            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly && selectedItem != null )
-            {
-                IsDropDownOpen = false;
             }
         }
 
