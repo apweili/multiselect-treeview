@@ -42,7 +42,7 @@ namespace System.Windows.Extensions
             }
             
             model.SelectionCheckState = SelectionCheckState.Deselected;
-            UpdateParentToRoot(model);
+            UpdateParent(model);
             return TravarseToLevelNodeWithAction(model, SetDeselectedState);
         }
         
@@ -66,11 +66,11 @@ namespace System.Windows.Extensions
             }
 
             model.SelectionCheckState = SelectionCheckState.FullSelected;
-            UpdateParentToRoot(model);
+            UpdateParent(model);
             return TravarseToLevelNodeWithAction(model, SetSelectedState);
         }
 
-        private static void UpdateParentToRoot(IAutoBindExpandableModel model)
+        private static void UpdateParent(IAutoBindExpandableModel model)
         {
             var parent = model.Parent;
             if (parent == null)
@@ -93,8 +93,6 @@ namespace System.Windows.Extensions
             {
                 parent.SelectionCheckState = SelectionCheckState.PartSelected;
             }
-   
-            UpdateParentToRoot(parent); 
         }
 
         private static void SetSelectedState(IAutoBindExpandableModel model)
