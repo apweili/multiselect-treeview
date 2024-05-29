@@ -619,7 +619,7 @@ namespace System.Windows.Controls
             var autoBindableModel = item as IAutoBindExpandableModel;
             if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
-                var selectedItems = autoBindableModel.UpdateStateAfterSelect().ToList();
+                var selectedItems = autoBindableModel.Select().ToList();
                 foreach (var leafItem in selectedItems)
                 {
                     AddItemWithProtection(leafItem);
@@ -645,7 +645,7 @@ namespace System.Windows.Controls
             var autoBindableModel = item as IAutoBindExpandableModel;
             if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
-                var deselectedItems = autoBindableModel.UpdateStateAfterDeselect().ToList();
+                var deselectedItems = autoBindableModel.Deselect().ToList();
                 foreach (var leafItems in deselectedItems)
                 {
                     RemoveItemWithProtection(leafItems);

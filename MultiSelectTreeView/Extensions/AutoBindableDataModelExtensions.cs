@@ -34,7 +34,7 @@ namespace System.Windows.Extensions
             }
         }
         
-        public static IEnumerable<IAutoBindExpandableModel> UpdateStateAfterDeselect(this IAutoBindExpandableModel model)
+        public static IEnumerable<IAutoBindExpandableModel> Deselect(this IAutoBindExpandableModel model)
         {
             if (model.SelectionCheckState == SelectionCheckState.Deselected)
             {
@@ -43,15 +43,15 @@ namespace System.Windows.Extensions
             
             model.SelectionCheckState = SelectionCheckState.Deselected;
             UpdateParentToRoot(model);
-            return TravarseToLevelNodeWithAction(model, Deselect);
+            return TravarseToLevelNodeWithAction(model, SetDeselectedState);
         }
         
-        private static void Deselect(IAutoBindExpandableModel model)
+        private static void SetDeselectedState(IAutoBindExpandableModel model)
         {
             model.SelectionCheckState = SelectionCheckState.Deselected;
         }
 
-        public static IEnumerable<IAutoBindExpandableModel> UpdateStateAfterSelect(this IAutoBindExpandableModel model)
+        public static IEnumerable<IAutoBindExpandableModel> Select(this IAutoBindExpandableModel model)
         {
             if (model.SelectionCheckState == SelectionCheckState.FullSelected)
             {
@@ -67,7 +67,7 @@ namespace System.Windows.Extensions
 
             model.SelectionCheckState = SelectionCheckState.FullSelected;
             UpdateParentToRoot(model);
-            return TravarseToLevelNodeWithAction(model, Expand);
+            return TravarseToLevelNodeWithAction(model, SetSelectedState);
         }
 
         private static void UpdateParentToRoot(IAutoBindExpandableModel model)
@@ -97,7 +97,7 @@ namespace System.Windows.Extensions
             UpdateParentToRoot(parent); 
         }
 
-        private static void Expand(IAutoBindExpandableModel model)
+        private static void SetSelectedState(IAutoBindExpandableModel model)
         {
             model.IsExpanded = true;
             model.SelectionCheckState = SelectionCheckState.FullSelected;
