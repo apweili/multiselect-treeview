@@ -637,11 +637,17 @@ namespace System.Windows.Controls
                 return;
             }
 
-            IsHandlingHandleAutoBindExpandableModel = true;
             try
             {
+                IsHandlingHandleAutoBindExpandableModel = true;
                 if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
                 {
+                    if (IsConsideringAggregateNode)
+                    {
+                        HandleAutoBindExpandableModelConsideringAggregateNode(autoBindableModel, true);
+                        return;
+                    }
+                    
                     var selectedItems = autoBindableModel.Select().ToList();
                     foreach (var leafItem in selectedItems)
                     {
@@ -683,11 +689,17 @@ namespace System.Windows.Controls
                 return;
             }
 
-            IsHandlingHandleAutoBindExpandableModel = true;
             try
             {
+                IsHandlingHandleAutoBindExpandableModel = true;
                 if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
                 {
+                    if (IsConsideringAggregateNode)
+                    {
+                        HandleAutoBindExpandableModelConsideringAggregateNode(autoBindableModel, false);
+                        return;
+                    }
+                    
                     var deselectedItems = autoBindableModel.Deselect().ToList();
                     foreach (var leafItems in deselectedItems)
                     {
@@ -706,7 +718,35 @@ namespace System.Windows.Controls
             }
         }
 
+        private void HandleAutoBindExpandableModelConsideringAggregateNode(IAutoBindExpandableModel autoBindableModel,
+            bool isSelect)
+        {
+            if (isSelect)
+            {
+                autoBindableModel.Select();
+            }
+            else
+            {
+                autoBindableModel.Deselect();
+            }
+
+            IList<IAutoBindExpandableModel> itemsToSelect;
+            IList<IAutoBindExpandableModel> itemsToDeselect;
+            autoBindableModel.GetSelectionInfoConsideringAggregateNode(out itemsToSelect, out itemsToDeselect);
+            foreach (var itemToSelect in itemsToSelect)
+            {
+                AddItemWithProtection(itemToSelect);
+            }
+
+            foreach (var itemToDeselect in itemsToDeselect)
+            {
+                RemoveItemWithProtection(itemToDeselect);
+            }
+        }
+
         private bool IsHandlingHandleAutoBindExpandableModel { get; set; }
+
+        private bool IsConsideringAggregateNode => SelectItemByCheckBox;
 
         private bool IsItemIncludedInSource(object item)
         {
@@ -833,6 +873,11 @@ namespace System.Windows.Controls
         private void AddItemWithProtection(object item)
         {
             if (IsSelecting())
+            {
+                return;
+            }
+
+            if (IsItemSelected(item))
             {
                 return;
             }

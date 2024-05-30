@@ -23,7 +23,7 @@ namespace System.Windows.Extensions
         {
             container.Remarks = modelWithImageSource.ImageSource;
         }
-        
+
         public static void AddBindingsToContainer(this IAutoBindingsProvider bindingsProvider,
             MultiSelectTreeViewItem container)
         {
@@ -33,31 +33,31 @@ namespace System.Windows.Extensions
                 container.SetBinding(bindingInfo.DependencyProperty, bindingInfo.Binding);
             }
         }
-        
-        public static IEnumerable<IAutoBindExpandableModel> Deselect(this IAutoBindExpandableModel model)
+
+        public static IList<IAutoBindExpandableModel> Deselect(this IAutoBindExpandableModel model)
         {
             if (model.SelectionCheckState == SelectionCheckState.Deselected)
             {
                 return new List<IAutoBindExpandableModel>();
             }
-            
+
             model.SelectionCheckState = SelectionCheckState.Deselected;
             UpdateParent(model);
-            return TravarseToLevelNodeWithAction(model, SetDeselectedState);
+            return TraverseToLevelNodeWithAction(model, SetDeselectedState).ToList();
         }
-        
+
         private static void SetDeselectedState(IAutoBindExpandableModel model)
         {
             model.SelectionCheckState = SelectionCheckState.Deselected;
         }
 
-        public static IEnumerable<IAutoBindExpandableModel> Select(this IAutoBindExpandableModel model)
+        public static IList<IAutoBindExpandableModel> Select(this IAutoBindExpandableModel model)
         {
             if (model.SelectionCheckState == SelectionCheckState.FullSelected)
             {
                 return new List<IAutoBindExpandableModel>();
             }
-            
+
             var parent = model.Parent;
             while (parent != null)
             {
@@ -67,7 +67,7 @@ namespace System.Windows.Extensions
 
             model.SelectionCheckState = SelectionCheckState.FullSelected;
             UpdateParent(model);
-            return TravarseToLevelNodeWithAction(model, SetSelectedState);
+            return TraverseToLevelNodeWithAction(model, SetSelectedState).ToList();
         }
 
         private static void UpdateParent(IAutoBindExpandableModel model)
@@ -79,8 +79,10 @@ namespace System.Windows.Extensions
             }
 
             var childrenTotalCount = parent.Children.Count();
-            var selectedItemsCount = parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.FullSelected);
-            var deselectedStateItemsCount = parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.Deselected);
+            var selectedItemsCount =
+                parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.FullSelected);
+            var deselectedStateItemsCount =
+                parent.Children.Count(c => c.SelectionCheckState == SelectionCheckState.Deselected);
             if (childrenTotalCount == selectedItemsCount)
             {
                 parent.SelectionCheckState = SelectionCheckState.FullSelected;
@@ -93,7 +95,7 @@ namespace System.Windows.Extensions
             {
                 parent.SelectionCheckState = SelectionCheckState.PartSelected;
             }
-            
+
             UpdateParent(parent);
         }
 
@@ -103,19 +105,19 @@ namespace System.Windows.Extensions
             model.SelectionCheckState = SelectionCheckState.FullSelected;
         }
 
-        private static IEnumerable<IAutoBindExpandableModel> TravarseToLevelNodeWithAction(IAutoBindExpandableModel model, Action<IAutoBindExpandableModel> action)
+        private static IEnumerable<IAutoBindExpandableModel> TraverseToLevelNodeWithAction(
+            IAutoBindExpandableModel model, Action<IAutoBindExpandableModel> action)
         {
-            action.Invoke(model);
+            action?.Invoke(model);
+            yield return model;
             if (model.Children == null)
             {
-                yield return model;
+                yield break;
             }
-            else
+            
+            foreach (var child in model.Children.SelectMany(c => TraverseToLevelNodeWithAction(c, action)))
             {
-                foreach (var child in model.Children.SelectMany(c => TravarseToLevelNodeWithAction(c, action)))
-                {
-                    yield return child;
-                }
+                yield return child;
             }
         }
 
@@ -136,7 +138,7 @@ namespace System.Windows.Extensions
             };
             container.SetBinding(MultiSelectTreeViewItem.IsExpandedProperty, bindingForExpand);
         }
-        
+
         private static void BindSelectionCheckStateProperty(IAutoBindExpandableModel autoBindExpandableModel,
             MultiSelectTreeViewItem container)
         {
@@ -148,19 +150,44 @@ namespace System.Windows.Extensions
             };
             container.SetBinding(MultiSelectTreeViewItem.SelectionCheckStateProperty, bindingForExpand);
         }
-        
-        private static IEnumerable<IAutoBindExpandableModel> GetParentFromTopToCurrent(IAutoBindExpandableModel node)
+
+        public static void GetSelectionInfoConsideringAggregateNode(this IAutoBindExpandableModel model,
+            out IList<IAutoBindExpandableModel> itemsToSelect, out IList<IAutoBindExpandableModel> itemsToRemove)
         {
-            var parents = new List<IAutoBindExpandableModel>();
-            var parent = node.Parent;
-            while (parent != null)
+            itemsToSelect = new List<IAutoBindExpandableModel>();
+            itemsToRemove = new List<IAutoBindExpandableModel>();
+            var rootParent = model;
+            while (rootParent.Parent != null)
             {
-                parents.Add(parent);
-                parent = parent.Parent;
+                rootParent = rootParent.Parent;
             }
 
-            parents.Reverse();
-            return parents;
+            TraverseToLevelNodeForRecordSelectionInfo(rootParent, ref itemsToSelect, ref itemsToRemove);
         }
+
+        private static void TraverseToLevelNodeForRecordSelectionInfo(IAutoBindExpandableModel model,
+            ref IList<IAutoBindExpandableModel> itemsToSelect, ref IList<IAutoBindExpandableModel> itemsToRemove)
+        {
+            var parent = model.Parent;
+            if ((parent == null || parent.SelectionCheckState != SelectionCheckState.FullSelected) &&
+                model.SelectionCheckState == SelectionCheckState.FullSelected)
+            {
+                itemsToSelect.Add(model);
+            }
+            else
+            {
+                itemsToRemove.Add(model);
+            }
+            
+            if (model.Children == null)
+            {
+                return;
+            }
+
+            foreach (var child in model.Children)
+            {
+                TraverseToLevelNodeForRecordSelectionInfo(child, ref itemsToSelect, ref itemsToRemove);
+            }
+        } 
     }
 }
