@@ -316,7 +316,7 @@ namespace System.Windows.Controls
 
             if ((int)e.NewValue >= 0)
             {
-                treeView.SelectItemByIndex((int)e.NewValue); 
+                treeView.SelectItemByIndex((int)e.NewValue);
             }
         }
 
@@ -572,7 +572,7 @@ namespace System.Windows.Controls
                     return SelectedItem;
                 }
             }
-            
+
             var items = GetAllItems();
             IList itemsWithSelectedValue;
             if (string.IsNullOrEmpty(valuePath))
@@ -589,28 +589,28 @@ namespace System.Windows.Controls
 
             return itemsWithSelectedValue.Count == 0 ? null : itemsWithSelectedValue.First();
         }
-        
+
         internal void DeselectAllItem()
         {
             if (InternalSelectedItems.Count == 0)
             {
-                ClearWithProtection();    //trigger event
+                ClearWithProtection(); //trigger event
                 return;
             }
-            
+
             foreach (var selectedItem in InternalSelectedItems.Cast<object>().ToList())
             {
                 DeselectItem(selectedItem);
             }
         }
-        
+
         internal void SelectItem(object item)
         {
             if (IsItemSelected(item))
             {
                 return;
             }
-            
+
             if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly)
             {
                 DeselectAllItem();
@@ -632,21 +632,34 @@ namespace System.Windows.Controls
 
         private void HandleAutoBindExpandableModelWhenSelected(IAutoBindExpandableModel autoBindableModel)
         {
-            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            if (IsHandlingHandleAutoBindExpandableModel)
             {
-                var selectedItems = autoBindableModel.Select().ToList();
-                foreach (var leafItem in selectedItems)
-                {
-                    AddItemWithProtection(leafItem);
-                }
-
                 return;
             }
-            
-            autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
-            AddItemWithProtection(autoBindableModel);
+
+            IsHandlingHandleAutoBindExpandableModel = true;
+            try
+            {
+                if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+                {
+                    var selectedItems = autoBindableModel.Select().ToList();
+                    foreach (var leafItem in selectedItems)
+                    {
+                        AddItemWithProtection(leafItem);
+                    }
+
+                    return;
+                }
+
+                autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
+                AddItemWithProtection(autoBindableModel);
+            }
+            finally
+            {
+                IsHandlingHandleAutoBindExpandableModel = false;
+            }
         }
-        
+
         internal void DeselectItem(object item)
         {
             var autoBindableModel = item as IAutoBindExpandableModel;
@@ -655,7 +668,7 @@ namespace System.Windows.Controls
                 HandleAutoBindExpandableModelWhenDeselected(autoBindableModel);
                 return;
             }
-            
+
             //todo remove children by view
             RemoveItemWithProtection(item);
             var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
@@ -665,20 +678,35 @@ namespace System.Windows.Controls
 
         private void HandleAutoBindExpandableModelWhenDeselected(IAutoBindExpandableModel autoBindableModel)
         {
-            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            if (IsHandlingHandleAutoBindExpandableModel)
             {
-                var deselectedItems = autoBindableModel.Deselect().ToList();
-                foreach (var leafItems in deselectedItems)
-                {
-                    RemoveItemWithProtection(leafItems);
-                }
-
                 return;
             }
-            
-            autoBindableModel.SelectionCheckState = SelectionCheckState.Deselected;
-            RemoveItemWithProtection(autoBindableModel);
+
+            IsHandlingHandleAutoBindExpandableModel = true;
+            try
+            {
+                if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+                {
+                    var deselectedItems = autoBindableModel.Deselect().ToList();
+                    foreach (var leafItems in deselectedItems)
+                    {
+                        RemoveItemWithProtection(leafItems);
+                    }
+
+                    return;
+                }
+
+                autoBindableModel.SelectionCheckState = SelectionCheckState.Deselected;
+                RemoveItemWithProtection(autoBindableModel);
+            }
+            finally
+            {
+                IsHandlingHandleAutoBindExpandableModel = false;
+            }
         }
+
+        private bool IsHandlingHandleAutoBindExpandableModel { get; set; }
 
         private bool IsItemIncludedInSource(object item)
         {
@@ -759,7 +787,7 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
+
             if (selectedItem != null)
             {
                 SelectedIndex = Items.IndexOf(selectedItem);
@@ -811,19 +839,19 @@ namespace System.Windows.Controls
 
             InternalSelectedItems.Add(item);
         }
-        
+
         private void RemoveItemWithProtection(object item)
         {
             if (IsSelecting())
             {
                 return;
             }
-            
+
             if (!IsItemSelected(item))
             {
                 return;
             }
-            
+
             var index = InternalSelectedItems.IndexOf(item);
             if (index < 0)
             {
@@ -839,7 +867,7 @@ namespace System.Windows.Controls
             {
                 return;
             }
-            
+
             InternalSelectedItems.Clear();
         }
 

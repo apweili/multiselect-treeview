@@ -93,6 +93,8 @@ namespace System.Windows.Extensions
             {
                 parent.SelectionCheckState = SelectionCheckState.PartSelected;
             }
+            
+            UpdateParent(parent);
         }
 
         private static void SetSelectedState(IAutoBindExpandableModel model)
