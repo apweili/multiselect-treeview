@@ -617,7 +617,22 @@ namespace System.Windows.Controls
             }
 
             var autoBindableModel = item as IAutoBindExpandableModel;
-            if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            if (autoBindableModel != null)
+            {
+                HandleAutoBindExpandableModelWhenSelected(autoBindableModel);
+                return;
+            }
+
+            //todo add children by view
+            AddItemWithProtection(item);
+            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
+            if (container == null) return;
+            container.SelectionCheckState = SelectionCheckState.FullSelected;
+        }
+
+        private void HandleAutoBindExpandableModelWhenSelected(IAutoBindExpandableModel autoBindableModel)
+        {
+            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
                 var selectedItems = autoBindableModel.Select().ToList();
                 foreach (var leafItem in selectedItems)
@@ -627,23 +642,30 @@ namespace System.Windows.Controls
 
                 return;
             }
-
-            AddItemWithProtection(item);
-            if (autoBindableModel != null)
-            {
-                autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
-                return;
-            }
-
-            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
-            if (container == null) return;
-            container.SelectionCheckState = SelectionCheckState.FullSelected;
+            
+            autoBindableModel.SelectionCheckState = SelectionCheckState.FullSelected;
+            AddItemWithProtection(autoBindableModel);
         }
         
         internal void DeselectItem(object item)
         {
             var autoBindableModel = item as IAutoBindExpandableModel;
-            if (autoBindableModel != null && SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
+            if (autoBindableModel != null)
+            {
+                HandleAutoBindExpandableModelWhenDeselected(autoBindableModel);
+                return;
+            }
+            
+            //todo remove children by view
+            RemoveItemWithProtection(item);
+            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
+            if (container == null) return;
+            container.SelectionCheckState = SelectionCheckState.Deselected;
+        }
+
+        private void HandleAutoBindExpandableModelWhenDeselected(IAutoBindExpandableModel autoBindableModel)
+        {
+            if (SelectionMode == TreeViewSelectionMode.MultiSelectEnabled)
             {
                 var deselectedItems = autoBindableModel.Deselect().ToList();
                 foreach (var leafItems in deselectedItems)
@@ -654,16 +676,8 @@ namespace System.Windows.Controls
                 return;
             }
             
-            RemoveItemWithProtection(item);
-            if (autoBindableModel != null)
-            {
-                autoBindableModel.SelectionCheckState = SelectionCheckState.Deselected;
-                return;
-            }
-            
-            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
-            if (container == null) return;
-            container.SelectionCheckState = SelectionCheckState.Deselected;
+            autoBindableModel.SelectionCheckState = SelectionCheckState.Deselected;
+            RemoveItemWithProtection(autoBindableModel);
         }
 
         private bool IsItemIncludedInSource(object item)
