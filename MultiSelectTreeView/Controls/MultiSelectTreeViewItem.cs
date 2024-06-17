@@ -11,7 +11,28 @@ namespace System.Windows.Controls
 {
     public partial class MultiSelectTreeViewItem : HeaderedItemsControl
     {
-        #region Dependency properties
+        static MultiSelectTreeViewItem()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(
+                typeof(MultiSelectTreeViewItem),
+                new FrameworkPropertyMetadata(typeof(MultiSelectTreeViewItem)));
+            EventManager.RegisterClassHandler(typeof(MultiSelectTreeViewItem), Mouse.MouseMoveEvent, new MouseEventHandler(OnMouseMove));
+        }
+
+        private static void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            var multiSelectTreeViewItem = (MultiSelectTreeViewItem)sender;
+            var itemMouseMove = new RoutedEventArgs
+            {
+                RoutedEvent = MultiTreeViewItemMouseMoveEvent,
+                Source = multiSelectTreeViewItem
+            };
+            multiSelectTreeViewItem.RaiseEvent(itemMouseMove);
+        }
+
+        internal static readonly RoutedEvent MultiTreeViewItemMouseMoveEvent = EventManager.RegisterRoutedEvent("MultiTreeViewItemMouseMove", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(MultiSelectTreeViewItem));
+
+        #region Dependency properties 
 
         #region Brushes
 
@@ -163,13 +184,6 @@ namespace System.Windows.Controls
         #endregion Dependency properties
 
         #region Constructors and Destructors
-
-        static MultiSelectTreeViewItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(
-                typeof(MultiSelectTreeViewItem),
-                new FrameworkPropertyMetadata(typeof(MultiSelectTreeViewItem)));
-        }
 
         public MultiSelectTreeViewItem()
         {
@@ -347,12 +361,17 @@ namespace System.Windows.Controls
 
         #region Non-public properties
 
-        private MultiSelectTreeView lastParentTreeView;
+        private MultiSelectTreeView _lastParentTreeView;
 
         internal MultiSelectTreeView ParentTreeView
         {
             get
             {
+                if (_lastParentTreeView != null)
+                {
+                    return _lastParentTreeView;
+                }
+
                 for (ItemsControl itemsControl = ParentItemsControl;
                      itemsControl != null;
                      itemsControl = ItemsControlFromItemContainer(itemsControl))
@@ -360,7 +379,7 @@ namespace System.Windows.Controls
                     MultiSelectTreeView treeView = itemsControl as MultiSelectTreeView;
                     if (treeView != null)
                     {
-                        return lastParentTreeView = treeView;
+                        return _lastParentTreeView = treeView;
                     }
                 }
 
@@ -427,7 +446,11 @@ namespace System.Windows.Controls
                     }
 
                     item.BringIntoView();
-                    item.Focus();
+                    //todo(lw)
+                    if (item.ParentTreeView.IsAbleToExpand())
+                    {
+                        item.Focus();
+                    }
                 }
                 else
                 {
@@ -495,7 +518,7 @@ namespace System.Windows.Controls
             {
                 MultiSelectTreeView parentTV = ParentTreeView;
                 if (parentTV == null)
-                    parentTV = lastParentTreeView;
+                    parentTV = _lastParentTreeView;
                 if (parentTV != null)
                 {
                     foreach (var item in oldValue)
@@ -740,7 +763,7 @@ namespace System.Windows.Controls
                     // Items list
                     parentTV = ParentTreeView;
                     if (parentTV == null)
-                        parentTV = lastParentTreeView;
+                        parentTV = _lastParentTreeView;
                     if (parentTV != null)
                     {
                         foreach (var item in e.OldItems)

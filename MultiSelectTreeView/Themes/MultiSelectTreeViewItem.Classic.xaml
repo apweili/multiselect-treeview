@@ -14,11 +14,24 @@
     <SolidColorBrush x:Key="MultiSelectTreeViewItem.TreeArrow.MouseOver.Checked.Fill" Color="#FF82DFFB" />
     <SolidColorBrush x:Key="Item.MouseOver.Background" Color="#1F26A0DA" />
     <SolidColorBrush x:Key="Item.MouseOver.Border" Color="#a826A0Da" />
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewHover.Background" Color="#1F26A0DA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewHover.Border" Color="#A826A0DA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewSelected.Background" Color="#3D26A0DA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewSelected.Border" Color="#FF26A0DA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewSelectedHover.Background" Color="#2E0080FF"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewSelectedHover.Border" Color="#99006CD9"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewSelectedNoFocus.Background" Color="#3DDADADA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewSelectedNoFocus.Border" Color="#FFDADADA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewFocus.Border" Color="#FF26A0DA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewHoverFocus.Background" Color="#5426A0DA"/>
+    <SolidColorBrush x:Key="ComboBoxItem.ItemsViewHoverFocus.Border" Color="#FF26A0DA"/>
     <PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z" />
     <Style x:Key="ExpandCollapseToggleStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Focusable" Value="False" />
         <Setter Property="Width" Value="16" />
         <Setter Property="Height" Value="16" />
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="4,1"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -75,17 +88,18 @@
     </Style>
     <Style TargetType="{x:Type controls:MultiSelectTreeViewItem}">
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment"
                 Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
         <Setter Property="VerticalContentAlignment"
                 Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
-        <Setter Property="Padding" Value="1,0,0,0" />
+        <Setter Property="Padding" Value="4,2" />
         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource MultiSelectTreeViewItemFocusVisual}" />
         <Setter Property="RemarksTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <Image Source="{Binding }" Focusable="False" Margin="0,0,2,0">
+                    <Image Source="{Binding }" Focusable="False" Margin="3, 0" Width="14" Height="14">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
@@ -102,7 +116,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:MultiSelectTreeViewItem}">
-                    <Grid x:Name="Part_LayoutGrid">
+                    <Grid x:Name="Part_LayoutGrid" Background="Transparent">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MinWidth="19" Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -121,6 +135,7 @@
                         </CheckBox>
                         <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Name="BorderOfSelection"
                                 Focusable="False"
+                                Padding="{Binding Padding, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                 Margin="{Binding IndentMargin, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                         <StackPanel x:Name="ContentStackPanel" Grid.Column="1" Orientation="Horizontal">
                             <ContentPresenter
@@ -129,8 +144,9 @@
                                 SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
                             <Grid Name="ElementGrid">
                                 <Border
-                                    x:Name="Bd" Background="{TemplateBinding Background}"
+                                    x:Name="Bd"
                                     BorderBrush="{TemplateBinding BorderBrush}"
+                                    Background="{TemplateBinding Background}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                                     <ContentPresenter Name="PART_Header"
@@ -142,7 +158,8 @@
                                                       ContentSource="Header"
                                                       HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
                                                       VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
-                                                      SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                                      SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
+                                                      Margin="2,0"/>
                                 </Border>
                             </Grid>
                         </StackPanel>
@@ -151,26 +168,83 @@
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False"/>
+                                <Condition SourceName="Part_LayoutGrid" Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsKeyboardFocused" Value="False"/>
                                 <Condition Property="HasItems" Value="False" />
-                                <Condition Property="IsMouseOver" Value="True" />
                                 <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="BorderOfSelection"
-                                    Value="{StaticResource Item.MouseOver.Background}" />
-                            <Setter Property="BorderBrush" TargetName="BorderOfSelection"
-                                    Value="{StaticResource Item.MouseOver.Border}" />
+                            <Setter Property="Background" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewHover.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewHover.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition SourceName="Part_LayoutGrid" Property="IsMouseOver" Value="False" />
+                                <Condition Property="IsKeyboardFocused" Value="True"/>
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewSelected.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewSelected.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition SourceName="Part_LayoutGrid" Property="IsMouseOver" Value="True" />
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewSelectedHover.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewSelectedHover.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition SourceName="Part_LayoutGrid" Property="IsMouseOver" Value="False" />
+                                <Condition Property="IsKeyboardFocused" Value="False"/>
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewSelectedNoFocus.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewSelectedNoFocus.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False"/>
+                                <Condition SourceName="Part_LayoutGrid" Property="IsMouseOver" Value="False" />
+                                <Condition Property="IsKeyboardFocused" Value="True"/>
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewFocus.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False"/>
+                                <Condition SourceName="Part_LayoutGrid" Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsKeyboardFocused" Value="True"/>
+                                <Condition Property="HasItems" Value="False" />
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewHoverFocus.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="BorderOfSelection" Value="{StaticResource ComboBoxItem.ItemsViewHoverFocus.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True" />
+                                <Condition SourceName="ContentStackPanel" Property="Grid.Column" Value="1" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd"
+                                    Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
                         </MultiTrigger>
                         <Trigger Property="IsExpanded" Value="False">
                             <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="HasItems" Value="False">
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden" />
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" TargetName="Bd"
-                                    Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                            <Setter Property="Foreground"
-                                    Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground"
@@ -187,15 +261,27 @@
                             <Setter Property="Grid.Column" TargetName="Expander" Value="1" />
                             <Setter Property="Grid.Column" TargetName="ContentStackPanel" Value="2" />
                         </MultiTrigger>
-                        <Trigger Property="SelectionCheckState" Value="FullSelected">
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="True" />
+                                <Condition Property="SelectionCheckState" Value="FullSelected" />
+                            </MultiTrigger.Conditions>
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="True" />
-                        </Trigger>
-                        <Trigger Property="SelectionCheckState" Value="PartSelected">
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="True" />
+                                <Condition Property="SelectionCheckState" Value="PartSelected" />
+                            </MultiTrigger.Conditions>
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="{x:Null}" />
-                        </Trigger>
-                        <Trigger Property="SelectionCheckState" Value="Deselected">
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="controls:MultiSelectTreeView.SelectItemByCheckBox" Value="True" />
+                                <Condition Property="SelectionCheckState" Value="Deselected" />
+                            </MultiTrigger.Conditions>
                             <Setter Property="IsChecked" TargetName="SelectionCheckBox" Value="False" />
-                        </Trigger>
+                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

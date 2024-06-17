@@ -4,8 +4,11 @@
     {
         private const string GridLayoutName = "Part_LayoutGrid";
         private const string CheckBoxName = "SelectionCheckBox";
+        private const string ContentStackPanelName = "ContentStackPanel";
         internal CheckBox CheckBox { get; private set; }
         internal Grid LayoutGrid { get; private set; }
+        internal StackPanel ContentStackPanel { get; private set; }
+
         private static readonly DependencyPropertyKey IndentMarginPropertyKey =
             DependencyProperty.RegisterReadOnly("IndentMargin", typeof(Thickness), typeof(MultiSelectTreeViewItem),
                 new FrameworkPropertyMetadata(new Thickness()));
@@ -23,6 +26,7 @@
             base.OnApplyTemplate();
             LayoutGrid = (Grid)GetTemplateChild(GridLayoutName);
             CheckBox = (CheckBox)GetTemplateChild(CheckBoxName);
+            ContentStackPanel = (StackPanel)GetTemplateChild(ContentStackPanelName);
             CheckBox.Checked += CheckBoxOnChecked;
             CheckBox.Unchecked += CheckBoxOnUnchecked;
         }
@@ -33,7 +37,7 @@
             {
                 return;
             }
-            
+
             ParentTreeView.Selection.Deselect(this);
         }
 
@@ -47,10 +51,20 @@
             ParentTreeView.Selection.Select(this);
         }
 
+        protected override Size MeasureOverride(Size constraint)
+        {
+            if (ItemsControlHost == ParentTreeView && !ParentTreeView.IsAbleToExpand())
+            {
+                ContentStackPanel.SetValue(Grid.ColumnProperty, 0);
+            }
+
+            return base.MeasureOverride(constraint);
+        }
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
-            if (!IsUnderMultiSelectTreeView(ParentTreeView))
+            if (!IsUnderMultiSelectTreeView(ParentTreeView) || !ParentTreeView.IsAbleToExpand())
             {
                 return;
             }
@@ -65,8 +79,8 @@
 
             lastCalculatedIndentMargin.Left = currentIndentWidth;
             IndentMargin = lastCalculatedIndentMargin;
-        } 
-        
+        }
+
         private static bool IsUnderMultiSelectTreeView(FrameworkElement parent)
         {
             return parent is MultiSelectTreeView;
@@ -88,7 +102,7 @@
 
             return accumulativeIndentWidth;
         }
-        
+
         private ItemsControl _itemsControlHost;
 
         private ItemsControl ItemsControlHost

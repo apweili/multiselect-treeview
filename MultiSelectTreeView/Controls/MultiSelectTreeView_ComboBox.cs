@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace System.Windows.Controls
@@ -63,6 +64,21 @@ namespace System.Windows.Controls
 
         private static void OnIsDropDownOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            var multiSelectTreeView = (MultiSelectTreeView)d;
+            var newValue = (bool)e.NewValue;
+            if (newValue)
+            {
+                Mouse.Capture(multiSelectTreeView, CaptureMode.SubTree);
+            }
+            else
+            {
+                if (Mouse.Captured == multiSelectTreeView)
+                {
+                    Mouse.Capture(null);
+                }
+            }
+
+            multiSelectTreeView.CoerceValue(ToolTipService.IsEnabledProperty);
         }
 
         /// <summary>
@@ -173,6 +189,24 @@ namespace System.Windows.Controls
 
         private static void OnIsEditableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+        }
+
+        /// <summary>
+        ///     DependencyProperty for Text
+        /// </summary>
+        public static readonly DependencyProperty TextProperty = ComboBox.TextProperty.AddOwner(typeof(MultiSelectTreeView), new FrameworkPropertyMetadata(
+            string.Empty,
+            FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
+            new PropertyChangedCallback(OnTextChanged)));
+
+        private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+        }
+        
+        public string Text
+        {
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
     }
 }

@@ -15,6 +15,138 @@ namespace System.Windows.Controls
 {
     public partial class MultiSelectTreeView : ItemsControl
     {
+        static MultiSelectTreeView()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MultiSelectTreeView),
+                new FrameworkPropertyMetadata(typeof(MultiSelectTreeView)));
+            ToolTipService.IsEnabledProperty.OverrideMetadata(typeof(MultiSelectTreeView),
+                new FrameworkPropertyMetadata(null, new CoerceValueCallback(CoerceToolTipIsEnabled)));
+            EventManager.RegisterClassHandler(typeof(MultiSelectTreeView), Mouse.LostMouseCaptureEvent, new MouseEventHandler(OnLostMouseCapture));
+            EventManager.RegisterClassHandler(typeof(MultiSelectTreeView), Mouse.MouseDownEvent, new MouseButtonEventHandler(OnMouseButtonDown), true);
+            EventManager.RegisterClassHandler(typeof(MultiSelectTreeView), Mouse.MouseWheelEvent, new MouseWheelEventHandler(OnMouseWheel), true);
+            EventManager.RegisterClassHandler(typeof(MultiSelectTreeView), MultiSelectTreeViewItem.MultiTreeViewItemMouseMoveEvent, new RoutedEventHandler(OnItemMouseMove));
+        }
+
+        private static void OnItemMouseMove(object sender, RoutedEventArgs e)
+        {
+            var multiSelectTreeView = (MultiSelectTreeView)sender;
+            if (multiSelectTreeView.IsAbleToExpand())
+            {
+                return;
+            }
+
+            var multiSelectTreeViewItem = e.OriginalSource as MultiSelectTreeViewItem;
+            if (multiSelectTreeViewItem != null && !multiSelectTreeViewItem.IsKeyboardFocusWithin)
+            {
+                multiSelectTreeViewItem.Focus();
+            }
+        }
+
+        private static void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var multiSelectTreeView = (MultiSelectTreeView)sender;
+            if (!multiSelectTreeView.IsKeyboardFocusWithin)
+            {
+                if (multiSelectTreeView.IsDropDownOpen)
+                {
+                    multiSelectTreeView.Close();
+                }
+
+                e.Handled = true;
+                return;
+            }
+
+            if(!FindDescendant(multiSelectTreeView, e.OriginalSource as DependencyObject))
+            {
+                if (multiSelectTreeView.IsDropDownOpen)
+                {
+                    multiSelectTreeView.Close();
+                }
+
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private static void OnMouseButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var multiSelectTreeView = (MultiSelectTreeView)sender;
+            if (!multiSelectTreeView.IsKeyboardFocusWithin)
+            {
+                multiSelectTreeView.Focus();
+            }
+
+            e.Handled = true;
+            if (Mouse.Captured == multiSelectTreeView && e.OriginalSource == multiSelectTreeView)
+            {
+                multiSelectTreeView.Close();
+            }
+        }
+
+        private static void OnLostMouseCapture(object sender, MouseEventArgs e)
+        {
+            var multiSelectTreeView = (MultiSelectTreeView)sender;
+            if (Mouse.Captured == multiSelectTreeView)
+            {
+                return;
+            }
+
+            if (e.OriginalSource == multiSelectTreeView)
+            {
+                if (Mouse.Captured == null ||
+                    !FindDescendant(multiSelectTreeView, Mouse.Captured as DependencyObject))
+                {
+                    multiSelectTreeView.Close();
+                }
+            }
+            else
+            {
+                if (FindDescendant(multiSelectTreeView, e.OriginalSource as DependencyObject))
+                {
+                    if (multiSelectTreeView.IsDropDownOpen && Mouse.Captured == null)
+                    {
+                        Mouse.Capture(multiSelectTreeView, CaptureMode.SubTree);
+                        e.Handled = true;
+                    }
+                }
+                else
+                {
+                    multiSelectTreeView.Close();
+                }
+            }
+        }
+
+        public static bool FindDescendant(DependencyObject reference, DependencyObject node)
+        {
+            if (node == null)
+            {
+                return false;
+            }
+
+            var childrenCount = VisualTreeHelper.GetChildrenCount(reference);
+            if (childrenCount == 0) return false;
+
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var current = VisualTreeHelper.GetChild(reference, i);
+                if (current == node)
+                    return true;
+
+                if (FindDescendant(current, node))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static object CoerceToolTipIsEnabled(DependencyObject d, object value)
+        {
+            MultiSelectTreeView cb = (MultiSelectTreeView)d;
+            return cb.IsDropDownOpen ? false : value;
+        }
+
         #region Constants and Fields
 
         public static DependencyProperty BackgroundSelectionRectangleProperty = DependencyProperty.Register(
@@ -72,12 +204,6 @@ namespace System.Windows.Controls
         #endregion
 
         #region Constructors and Destructors
-
-        static MultiSelectTreeView()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(MultiSelectTreeView),
-                new FrameworkPropertyMetadata(typeof(MultiSelectTreeView)));
-        }
 
         public MultiSelectTreeView()
         {
@@ -497,6 +623,15 @@ namespace System.Windows.Controls
             }
 
             base.OnItemsChanged(e);
+        }
+
+        internal bool IsAbleToExpand()
+        {
+            return (from object item in Items
+                select (MultiSelectTreeViewItem)this.ItemContainerGenerator.ContainerFromItem(item)
+                into container
+                where container != null
+                select container).Any(container => container.HasItems);
         }
 
         internal static IEnumerable<MultiSelectTreeViewItem> RecursiveTreeViewItemEnumerable(ItemsControl parent,

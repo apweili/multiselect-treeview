@@ -277,6 +277,11 @@ namespace System.Windows.Controls
                 return baseValue;
             }
 
+            if (treeView.IsIgnorePropertyChange)
+            {
+                return baseValue;
+            }
+
             if (!treeView.TryToSelectItemByValue(baseValue))
             {
                 return null;
@@ -309,7 +314,7 @@ namespace System.Windows.Controls
             }
 
             var treeView = (MultiSelectTreeView)d;
-            if (treeView == null)
+            if (treeView == null || treeView.IsIgnorePropertyChange)
             {
                 return;
             }
@@ -334,6 +339,14 @@ namespace System.Windows.Controls
             }
 
             return (int)baseValue >= treeView.Items.Count ? DependencyProperty.UnsetValue : baseValue;
+        }
+
+        internal void Close()
+        {
+            if (SelectionMode == TreeViewSelectionMode.SingleSelectOnly && IsDropDownOpen)
+            {
+                IsDropDownOpen = false;
+            }
         }
 
         private bool IsUpdatingSelectedItems { get; set; }
@@ -437,31 +450,8 @@ namespace System.Windows.Controls
 
         private void OnInternalSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            try
-            {
-                BeginSelect();
-                SyncExternalSelectedItems(e);
-                OnInternalSelectedItemsChangedCore(e);
-            }
-            finally
-            {
-                EndSelect();
-            }
-        }
-
-        private void BeginSelect()
-        {
-            IsUpdatingSelectedItems = true;
-        }
-
-        private void EndSelect()
-        {
-            IsUpdatingSelectedItems = false;
-        }
-
-        private bool IsSelecting()
-        {
-            return IsUpdatingSelectedItems;
+            SyncExternalSelectedItems(e);
+            OnInternalSelectedItemsChangedCore(e);
         }
 
         // this eventhandler reacts on the firing control to, in order to update the own status
@@ -528,11 +518,27 @@ namespace System.Windows.Controls
                     throw new InvalidOperationException();
             }
 
-            SyncSelectedInfoAfterUpdateSelectedItems();
-            var selectionChangedEventArgs =
-                new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
-            OnSelectionChanged(selectionChangedEventArgs);
+
+            if (UpdatePropertyDispatcherTimer == null)
+            {
+                UpdatePropertyDispatcherTimer = new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.Send,
+                    (sender, eventArgs) =>
+                    {
+                       
+                        SyncSelectedInfoAfterUpdateSelectedItems();
+                        var selectionChangedEventArgs =
+                            new SelectionChangedEventArgs(SelectionChangedEvent, addedItems, removedItems);
+                        OnSelectionChanged(selectionChangedEventArgs);
+                        UpdatePropertyDispatcherTimer.Stop();
+                    }, this.Dispatcher);
+            }
+            else
+            {
+                UpdatePropertyDispatcherTimer.Start();
+            }
         }
+
+        private DispatcherTimer UpdatePropertyDispatcherTimer { get; set; }
 
         private void SelectItemByIndex(int index)
         {
@@ -543,8 +549,8 @@ namespace System.Windows.Controls
 
         private bool TryToSelectItemByValue(object selectedValue)
         {
-            var selectedItem = selectedValue == null ? null : GetSelectedItemByValue(selectedValue);
-            if (selectedItem != null && IsItemSelected(selectedItem))
+            var selectedItem = GetSelectedItemByValue(selectedValue);
+            if (IsItemSelected(selectedItem))
             {
                 return true;
             }
@@ -563,31 +569,42 @@ namespace System.Windows.Controls
         private object GetSelectedItemByValue(object selectedValue)
         {
             var valuePath = SelectedValuePath;
-            if (SelectedItem != null)
+            if (SelectedItem != null && SelectedValueEqualsItem(selectedValue, SelectedItem, valuePath))
             {
-                var currentSelectedValue = PropertyPathHelper.GetObjectByPropertyPath(SelectedItem,
-                    valuePath);
-                if (selectedValue.Equals(currentSelectedValue))
-                {
-                    return SelectedItem;
-                }
+                return SelectedItem;
             }
 
             var items = GetAllItems();
-            IList itemsWithSelectedValue;
-            if (string.IsNullOrEmpty(valuePath))
+            var itemsWithSelectedValue = items.Where(item => SelectedValueEqualsItem(selectedValue, item, valuePath)).ToList();
+            return itemsWithSelectedValue.Count == 0 ? null : itemsWithSelectedValue.First();
+        }
+
+        private static bool SelectedValueEqualsItem(object selectedValue, object item, string valuePath)
+        {
+            if (selectedValue == null && item == null)
             {
-                itemsWithSelectedValue = items.Where(selectedValue.Equals).ToList();
-            }
-            else
-            {
-                itemsWithSelectedValue = items.Where(item => item != null &&
-                                                             selectedValue.Equals(
-                                                                 PropertyPathHelper.GetObjectByPropertyPath(item,
-                                                                     valuePath))).ToList();
+                return true;
             }
 
-            return itemsWithSelectedValue.Count == 0 ? null : itemsWithSelectedValue.First();
+            if (item == null)
+            {
+                return false;
+            }
+
+            var objectByPropertyPath = string.IsNullOrEmpty(valuePath)
+                ? item
+                : PropertyPathHelper.GetObjectByPropertyPath(item, valuePath);
+            if (selectedValue == null && objectByPropertyPath == null)
+            {
+                return true;
+            }
+
+            if (selectedValue == null || objectByPropertyPath == null)
+            {
+                return false;
+            }
+
+            return selectedValue.Equals(objectByPropertyPath);
         }
 
         internal void DeselectAllItem()
@@ -608,6 +625,7 @@ namespace System.Windows.Controls
         {
             if (IsItemSelected(item))
             {
+                Close();
                 return;
             }
 
@@ -620,14 +638,19 @@ namespace System.Windows.Controls
             if (autoBindableModel != null)
             {
                 HandleAutoBindExpandableModelWhenSelected(autoBindableModel);
-                return;
+            }
+            else
+            {
+                //todo add children by view
+                AddItemWithProtection(item);
+                var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
+                if (container != null)
+                {
+                    container.SelectionCheckState = SelectionCheckState.FullSelected;
+                }
             }
 
-            //todo add children by view
-            AddItemWithProtection(item);
-            var container = ItemContainerGenerator.ContainerFromItem(item) as MultiSelectTreeViewItem;
-            if (container == null) return;
-            container.SelectionCheckState = SelectionCheckState.FullSelected;
+            Close();
         }
 
         private void HandleAutoBindExpandableModelWhenSelected(IAutoBindExpandableModel autoBindableModel)
@@ -812,12 +835,11 @@ namespace System.Windows.Controls
                 }
             }
 
-            Dispatcher.InvokeAsync(() =>
-            {
-                SyncSelectedInfoNormal(selectedItem);
-                IsSelectionInitialized = true;
-            }, DispatcherPriority.Input);
+            SyncSelectedInfoNormal(selectedItem);
+            IsSelectionInitialized = true;
         }
+
+        private bool IsIgnorePropertyChange { get; set; }
 
         private void SyncSelectedInfoNormal(object selectedItem)
         {
@@ -828,18 +850,26 @@ namespace System.Windows.Controls
                 return;
             }
 
-            if (selectedItem != null)
+            try
             {
-                SelectedIndex = Items.IndexOf(selectedItem);
-                SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem,
-                    SelectedValuePath);
-                IsDropDownOpen = false;
+                IsIgnorePropertyChange = true;
+                if (selectedItem != null)
+                {
+                    SelectedIndex = Items.IndexOf(selectedItem);
+                    SelectedValue = PropertyPathHelper.GetObjectByPropertyPath(selectedItem,
+                        SelectedValuePath);
+                }
+                else
+                {
+                    SelectedIndex = -1;
+                    SelectedValue = null;
+                }
             }
-            else
+            finally
             {
-                SelectedIndex = -1;
-                SelectedValue = null;
+                IsIgnorePropertyChange = false;
             }
+            
         }
 
         private void UpdateSelectionBoxItem()
@@ -855,10 +885,22 @@ namespace System.Windows.Controls
             }
             else
             {
-                SelectionBoxItem = internalSelectedItems.FirstOrDefault();
-                if (IsIncludeImageSource(SelectionBoxItem))
+                var selectedItem = internalSelectedItems.FirstOrDefault();
+                SelectionBoxItem = selectedItem;
+                if (IsIncludeImageSource(selectedItem))
                 {
                     IsIncludeRemark = true;
+                }
+
+                if (selectedItem == null)
+                {
+                    Text = String.Empty;
+                }
+                else
+                {
+                    Text = string.IsNullOrEmpty(DisplayMemberPath)
+                        ? selectedItem.ToString()
+                        : PropertyPathHelper.GetObjectByPropertyPath(selectedItem, DisplayMemberPath).ToString();
                 }
             }
 
@@ -872,11 +914,6 @@ namespace System.Windows.Controls
 
         private void AddItemWithProtection(object item)
         {
-            if (IsSelecting())
-            {
-                return;
-            }
-
             if (IsItemSelected(item))
             {
                 return;
@@ -887,11 +924,6 @@ namespace System.Windows.Controls
 
         private void RemoveItemWithProtection(object item)
         {
-            if (IsSelecting())
-            {
-                return;
-            }
-
             if (!IsItemSelected(item))
             {
                 return;
@@ -908,11 +940,6 @@ namespace System.Windows.Controls
 
         private void ClearWithProtection()
         {
-            if (IsSelecting())
-            {
-                return;
-            }
-
             InternalSelectedItems.Clear();
         }
 
